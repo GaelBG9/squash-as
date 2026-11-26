@@ -1,5 +1,6 @@
 -- Tests de permisos de la tabla `jugadores` (tarea 0.2).
 -- Ejecutar en el SQL Editor DESPUÉS de supabase/sql/0002_jugadores.sql.
+-- Desde la 0.8 el email está en `jugadores_privado` (0005): estos tests usan ese esquema.
 --
 -- Cómo funciona: un único bloque `do` crea 3 cuentas DE PRUEBA, simula que cada
 -- una está conectada y comprueba qué puede hacer. Al final borra sus datos.
@@ -19,10 +20,10 @@ begin
 		(id_a, 'jugador.a@ejemplo.test'),
 		(id_b, 'jugador.b@ejemplo.test'),
 		(id_admin, 'admin@ejemplo.test');
-	insert into public.jugadores (id, nombre, email, grupo, rol) values
-		(id_a, 'Jugador A', 'jugador.a@ejemplo.test', 1, 'jugador'),
-		(id_b, 'Jugador B', 'jugador.b@ejemplo.test', 2, 'jugador'),
-		(id_admin, 'Admin Prueba', 'admin@ejemplo.test', 1, 'admin')
+	insert into public.jugadores (id, nombre, grupo, rol) values
+		(id_a, 'Jugador A', 1, 'jugador'),
+		(id_b, 'Jugador B', 2, 'jugador'),
+		(id_admin, 'Admin Prueba', 1, 'admin')
 	-- Desde la 0.3 el perfil ya lo crea el trigger al crear la cuenta: aquí solo se completa.
 	on conflict (id) do update
 		set nombre = excluded.nombre, grupo = excluded.grupo, rol = excluded.rol;
@@ -87,7 +88,7 @@ begin
 
 	-- Test 7: A no puede crear jugadores (eso llega en 0.3)
 	begin
-		insert into public.jugadores (id, nombre, email) values (id_b, 'Falso', 'falso@ejemplo.test');
+		insert into public.jugadores (id, nombre) values (id_b, 'Falso');
 		fallo_esperado := false;
 	exception when insufficient_privilege then
 		fallo_esperado := true;
@@ -139,4 +140,4 @@ end;
 $$;
 
 select 'TODOS LOS TESTS OK' as resultado,
-	(select count(*) from public.jugadores where email like '%@ejemplo.test') as datos_de_prueba_restantes;
+	(select count(*) from public.jugadores_privado where email like '%@ejemplo.test') as datos_de_prueba_restantes;

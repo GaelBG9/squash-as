@@ -4,7 +4,8 @@
 		DATOS_GUARDADOS,
 		EMAIL_CONTACTO,
 		ULTIMA_ACTUALIZACION,
-		fechaLegible
+		fechaLegible,
+		quienLoVe
 	} from '#lib/privacidad.ts';
 </script>
 
@@ -32,10 +33,11 @@
 		<h2>Quelles données nous gardons et pourquoi</h2>
 		<p>Lors de ta première connexion avec Google, ton profil de joueur est créé avec :</p>
 		<dl class="lista-datos">
-			{#each DATOS_GUARDADOS as { dato, para } (dato)}
+			{#each DATOS_GUARDADOS as linea (linea.dato)}
 				<div>
-					<dt>{dato}</dt>
-					<dd>{para}</dd>
+					<dt>{linea.dato}</dt>
+					<dd>{linea.para}</dd>
+					<dd class="visibilidad">{quienLoVe(linea)}</dd>
 				</div>
 			{/each}
 		</dl>
@@ -52,8 +54,12 @@
 		<ul>
 			<li>Sans être connecté, personne ne peut voir la liste des joueurs.</li>
 			<li>
-				Les joueurs connectés peuvent voir les profils des autres membres (nom, e-mail, groupe, rôle
-				et niveau).
+				Les joueurs connectés peuvent voir les profils des autres membres : nom, groupe, rôle et
+				niveau.
+			</li>
+			<li>
+				Ton e-mail n’est visible que par toi et par l’administrateur. Les autres joueurs ne peuvent
+				pas le voir.
 			</li>
 			<li>
 				Chaque joueur ne peut modifier que son propre nom. L’administrateur peut tout modifier.
@@ -137,6 +143,11 @@
 	dd {
 		margin: 0;
 		color: var(--color-texto-suave);
+	}
+
+	.visibilidad {
+		font-size: var(--texto-pequeno);
+		font-style: italic;
 	}
 
 	/* Los emails largos se parten en vez de provocar scroll horizontal en móvil. */

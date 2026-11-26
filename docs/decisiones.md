@@ -61,3 +61,9 @@ Formato: fecha, decisión, alternativas consideradas, por qué.
 - **Decisión**: todo lo que ve el usuario está en francés: textos, títulos, mensajes de error, textos para lectores de pantalla, fechas (`toLocaleDateString('fr')`), `lang="fr"` y las URLs (la política de privacidad pasa de `/privacidad` a `/confidentialite`). Se tutea al jugador, como en un club. Los nombres de variables, comentarios y la documentación siguen en español.
 - **Alternativas**: una librería de traducción (i18n) con varios idiomas; traducir también el código.
 - **Por qué**: los miembros del AS hablan francés y la app tiene un solo idioma, así que una librería i18n sería complejidad sin uso. Cambiar los nombres del código no aporta nada al usuario y rompería la coherencia con la documentación.
+
+## 2026-11-26 - Email privado en una tabla aparte (`jugadores_privado`)
+
+- **Decisión**: el email sale de `jugadores` y pasa a `jugadores_privado (id, email)`, con RLS "cada uno su fila, el admin todas" y solo lectura desde la app. El trigger de alta crea las dos filas. La política de privacidad dice quién ve cada dato a partir de la tabla en la que está (`quienLoVe` en `src/lib/privacidad.ts`).
+- **Alternativas**: dejar el email en `jugadores` y quitar el permiso de lectura de esa columna (`revoke select (email)`), con una función especial para el admin; una vista que oculte el email de los demás.
+- **Por qué**: RLS solo filtra filas, no columnas. El admin usa el mismo rol `authenticated` que los demás, así que con permisos por columna tampoco él podría leer los emails, y un `select *` daría error. Una vista no basta si la tabla sigue legible por la API. Con una tabla aparte se reutiliza el mismo patrón de RLS que ya conocemos y se prueba igual, con scripts SQL.
