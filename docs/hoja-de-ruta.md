@@ -19,6 +19,8 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Criterio: hay una página principal pública y una página de política de privacidad (qué datos guardamos y para qué); la app de Google pasa a "En producción" y cualquier cuenta Google puede conectarse sin estar en la lista de usuarios de prueba.
 - [x] 0.7 Diseño base de la interfaz (hacer antes de 1.1): maquetas para elegir estilo, colores del AS, tipografía, botones y formularios para móvil, cabecera con la sesión y menú de navegación; rediseñar la página de inicio con ese estilo
       Criterio: en un móvil (375 px de ancho) la página de inicio se ve sin scroll horizontal, con la cabecera y el menú comunes, botones de al menos 44 px de alto y el estilo elegido en la maqueta; los estilos y componentes están en `src/lib` para reutilizarlos en las pantallas siguientes.
+- [ ] 0.8 Ocultar el email de los demás jugadores (aparecido en la tarea 0.6)
+      Criterio: un jugador conectado ve el nombre, el grupo y el nivel de los demás, pero solo su propio email; el admin ve todos. Al terminar, actualizar "Quién puede verlos" en `/privacidad`.
 
 ## Fase 1 - MVP
 
