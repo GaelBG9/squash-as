@@ -1,0 +1,142 @@
+# Cahier des charges - Plataforma del AS de squash (V1)
+
+## 1. Contexto
+
+El AS de squash tiene dos grupos de jugadores (grupo 1 y grupo 2), una clase todos los jueves y 4 torneos al año. Hoy no existe una herramienta común para la lista de miembros, los resultados, las clasificaciones y la organización de los torneos.
+
+## 2. Objetivo
+
+Una aplicación web simple, moderna y usable desde el móvil que centralice:
+
+- la lista de miembros,
+- los resultados de los partidos (torneos y entrenamientos),
+- dos clasificaciones (torneos y nivel Glicko-2),
+- la organización de los torneos con cuadros de 16,
+- las estadísticas de cada jugador,
+- el emparejamiento automático de los jueves.
+
+## 3. Alcance
+
+### Incluido en la V1
+
+- Login con Google.
+- Lista de miembros con su grupo (1 o 2).
+- Registro de partidos con confirmación del rival.
+- Clasificación general de torneos.
+- Clasificación de nivel con Glicko-2 (torneos y entrenamientos).
+- Organización de torneos con cuadros de 16.
+- Estadísticas por jugador.
+- Emparejamiento automático para la clase de los jueves.
+
+### Excluido de la V1 (posibles proyectos futuros)
+
+- Guía de decisiones let / no let / stroke.
+- Planificador de clases con ejercicios.
+- Arbitraje en directo (marcador punto a punto).
+
+### Excluido definitivamente
+
+- Control de asistencia a las clases.
+
+## 4. Usuarios y roles
+
+- **Jugador**: cualquier persona con cuenta Google puede conectarse y obtiene este rol automáticamente.
+- **Administrador**: Gaël (responsable del proyecto). Gestiona miembros y torneos y recibe los avisos de validación automática.
+
+## 5. Funcionalidades (historias de usuario)
+
+### MVP
+
+1. Como jugador, quiero conectarme con mi cuenta Google para no tener que crear una contraseña.
+2. Como jugador, quiero registrar el resultado de un partido para que cuente en las clasificaciones.
+3. Como rival, quiero confirmar o rechazar un resultado para evitar errores o trampas.
+4. Como jugador, quiero ver la clasificación Glicko-2 para conocer mi nivel respecto a los demás.
+
+### V2
+
+5. Como administrador, quiero crear un torneo y generar un cuadro de 16 para organizarlo.
+6. Como jugador, quiero ver la clasificación general de torneos de la temporada.
+7. Como jugador, quiero ver mis estadísticas (partidos, juegos y puntos ganados/perdidos, porcentajes).
+8. Como administrador, quiero generar los emparejamientos del jueves automáticamente para ahorrar tiempo.
+
+## 6. Modelo de datos
+
+Una "entidad" es un tipo de objeto que se guarda en la base de datos (una tabla).
+
+| Entidad             | Campos principales                                                                                                             | Relaciones                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
+| Jugador             | id, nombre, email Google, grupo (1/2), rol, rating, RD, volatilidad                                                            | -                               |
+| Partido             | id, fecha, tipo (torneo/entrenamiento), jugador A, jugador B, ganador, estado (pendiente/confirmado/rechazado), registrado por | 2 jugadores; 0 o 1 torneo       |
+| Juego               | id, partido, número, puntos A, puntos B                                                                                        | pertenece a un partido          |
+| Torneo              | id, nombre, fecha, temporada                                                                                                   | tiene un cuadro y partidos      |
+| Cuadro              | id, torneo, ronda, posición, jugador                                                                                           | pertenece a un torneo           |
+| Historial de rating | jugador, fecha, rating, RD                                                                                                     | permite la gráfica de evolución |
+
+RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
+
+## 7. Reglas de negocio
+
+- R1. Un partido solo cuenta en las clasificaciones y estadísticas cuando el rival lo ha confirmado.
+- R2. Quien registra el resultado no puede confirmarlo él mismo.
+- R3. La clasificación de nivel usa Glicko-2 e incluye partidos de torneo y de entrenamiento.
+- R4. La clasificación general solo usa los resultados de torneos.
+- R5. Un cuadro de torneo tiene 16 plazas.
+- R6. El marcador se guarda juego a juego (por ejemplo 11-7, 9-11, 11-5).
+- R7. Cualquier persona con cuenta Google puede registrarse; no hay validación previa por un administrador.
+- R8. Si el rival no confirma ni rechaza un partido en 15 días desde su registro, el partido pasa automáticamente a "confirmado" y se envía un mensaje al administrador.
+- Por definir: puntos por ronda en la clasificación de torneos, formato de los partidos (al mejor de 3 o de 5), reglas de emparejamiento, canal del mensaje al admin.
+
+## 8. Criterios de aceptación
+
+- Historia 1: un usuario que pulsa "Conectarse con Google" y acepta llega a su perfil; un usuario no conectado no puede registrar partidos.
+- Historia 2: tras registrar 3-1 con juegos 11-7, 9-11, 11-5, 11-8, el partido aparece con estado "pendiente" y no cambia ningún rating.
+- Historia 3: cuando el rival confirma, el estado pasa a "confirmado" y los ratings de ambos jugadores cambian; si rechaza, el estado pasa a "rechazado" y los ratings no cambian.
+- Historia 3: quien registró el partido no ve el botón "Confirmar".
+- Historia 3: un partido registrado el 1 de marzo y sin respuesta pasa a "confirmado" el 16 de marzo, los ratings se actualizan y el administrador recibe un mensaje que lo indica.
+- Historia 1: una cuenta Google nueva puede conectarse y registrar un partido sin intervención del administrador.
+- Historia 4: la clasificación lista a todos los jugadores con al menos un partido confirmado, ordenados por rating de mayor a menor.
+- Historia 5: con 16 inscritos, el cuadro tiene 8 partidos en primera ronda y los cabezas de serie 1 y 2 solo pueden enfrentarse en la final.
+- Historia 7: un jugador con 3 partidos confirmados, 2 ganados, ve "2 victorias / 1 derrota - 67 %".
+- Historia 8: con un número par de jugadores presentes, cada uno recibe exactamente un rival.
+
+## 9. Restricciones técnicas
+
+- Frontend: SvelteKit (framework de JavaScript para webs interactivas).
+- Backend y base de datos: Supabase (PostgreSQL + login + API automática).
+- Presupuesto: 0 euros, plan gratuito de Supabase (500 MB de BD, 2 proyectos activos, pausa tras 1 semana sin actividad).
+- Uso principal en móvil.
+- Volumen: los miembros de un AS (unas decenas de usuarios).
+- Alojamiento del frontend: _Por definir_.
+
+## 10. Decisiones y su porqué
+
+| Decisión                                               | Razón                                                                                               |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| SvelteKit                                              | Buen equilibrio entre simplicidad y aspecto moderno; buen proyecto para el CV.                      |
+| Supabase                                               | Login con Google integrado, PostgreSQL, permisos por filas, plan gratuito suficiente y open source. |
+| Glicko-2 en vez de ELO                                 | Más justo con jugadores que juegan poco o que son nuevos gracias a la incertidumbre (RD).           |
+| Confirmación de resultados                             | Evitar errores y trampas.                                                                           |
+| Registro abierto con Google                            | Simplicidad: nadie tiene que validar nuevas cuentas.                                                |
+| Validación automática a los 15 días con aviso al admin | Ningún resultado queda bloqueado y el admin puede vigilar los casos dudosos.                        |
+| Sin asistencia a clases                                | Decisión del responsable del proyecto.                                                              |
+| Guía let/stroke y planificador fuera de la V1          | Mantener un alcance realista; quedan como proyectos futuros.                                        |
+
+## 11. Etapas
+
+- **MVP**: login Google, miembros, registro y confirmación de partidos, ranking Glicko-2 (historias 1-4).
+- **V2**: torneos con cuadros de 16, clasificación general, estadísticas, emparejamiento de los jueves (historias 5-8).
+- **Futuro**: arbitraje en directo, guía let/no let/stroke, planificador de clases.
+
+## 12. Preguntas abiertas
+
+1. ¿Puede haber más de un administrador en el futuro?
+2. ¿Cuántos puntos da cada ronda en la clasificación general de torneos?
+3. ¿Los partidos se juegan al mejor de 3 o de 5 juegos? ¿Depende del contexto?
+4. ¿Por qué canal llega el mensaje al admin (email, notificación en la app)? ¿Puede el admin anular un partido validado automáticamente?
+5. ¿Cómo se empareja el jueves: por grupo, por nivel Glicko-2 cercano, evitando repetir rivales?
+6. ¿Se incluye un cuadro de consolación (plate) para los eliminados en primera ronda?
+7. ¿Cómo se eligen los cabezas de serie: por rating Glicko-2 o por la clasificación de torneos?
+8. ¿Qué pasa si hay menos o más de 16 inscritos en un torneo?
+9. ¿Los partidos de torneo deben pesar más en Glicko-2 que los de entrenamiento?
+10. ¿Dónde se aloja el frontend (Vercel, Netlify, VPS)?
+11. ¿Los grupos 1 y 2 tienen clasificaciones separadas o una común?
