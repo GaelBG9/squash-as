@@ -7,12 +7,12 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
 - [x] 0.0 Esqueleto SvelteKit con un test y CI
 - [x] 0.1 Crear el proyecto Supabase y conectar la app (variables en `.env`, `.env.example` en el repo)
       Criterio: la página de inicio lee un dato de prueba de Supabase en local.
-- [ ] 0.2 Tabla `jugadores` (nombre, email, grupo, rol, rating, RD, volatilidad) con permisos por filas
+- [x] 0.2 Tabla `jugadores` (nombre, email, grupo, rol, rating, RD, volatilidad) con permisos por filas
       Criterio: un jugador solo puede modificar su propio perfil; el admin puede modificarlos todos.
 - [ ] 0.3 Login con Google y creación automática del perfil jugador
       Criterio: una cuenta Google nueva se conecta y obtiene el rol jugador sin intervención del admin; Gaël tiene el rol admin.
-- [ ] 0.4 Borrar la tabla `prueba_conexion` (de la tarea 0.1) cuando `jugadores` tenga datos de prueba
-      Criterio: la tabla ya no existe en Supabase y la página de inicio lee de `jugadores`.
+- [ ] 0.4 Borrar la tabla `prueba_conexion` (de la tarea 0.1) cuando el login (0.3) funcione
+      Criterio: la tabla ya no existe en Supabase y la página de inicio muestra el perfil del jugador conectado (sin sesión, `jugadores` no se puede leer: R10).
 - [ ] 0.5 Fijar los finales de línea con `.gitattributes` (`* text=auto eol=lf`)
       Criterio: en Windows, `scripts/verificar.sh` no da avisos de Prettier en archivos recién descargados de GitHub.
 
@@ -24,6 +24,7 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Criterio: al confirmar, el estado pasa a "confirmado"; al rechazar, a "rechazado" sin cambio de rating; quien registró no ve "Confirmar".
 - [ ] 1.3 Cálculo Glicko-2 al confirmar un partido (función probada con los ejemplos del artículo de Glickman)
       Criterio: los ratings de ambos jugadores cambian tras la confirmación y se guarda el historial.
+      Nota: rating/RD/volatilidad están protegidos por el trigger `proteger_campos_jugador`; el cálculo debe hacerse en una función `security definer` (el trigger no bloquea a las funciones internas).
 - [ ] 1.4 Validación automática a los 15 días con aviso al admin
       Criterio: un partido registrado el 1 de marzo sin respuesta pasa a "confirmado" el 16 de marzo y el admin recibe un aviso (canal por definir).
 - [ ] 1.5 Página de clasificación Glicko-2

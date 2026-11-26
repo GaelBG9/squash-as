@@ -84,6 +84,8 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - R6. El marcador se guarda juego a juego (por ejemplo 11-7, 9-11, 11-5).
 - R7. Cualquier persona con cuenta Google puede registrarse; no hay validación previa por un administrador.
 - R8. Si el rival no confirma ni rechaza un partido en 15 días desde su registro, el partido pasa automáticamente a "confirmado" y se envía un mensaje al administrador.
+- R9. Solo el administrador asigna o cambia el grupo y el rol de un jugador; el jugador solo puede cambiar su nombre.
+- R10. La lista de jugadores solo es visible para usuarios conectados.
 - Por definir: puntos por ronda en la clasificación de torneos, formato de los partidos (al mejor de 3 o de 5), reglas de emparejamiento, canal del mensaje al admin.
 
 ## 8. Criterios de aceptación

@@ -20,6 +20,10 @@ npm install
 2. Fill in `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Supabase dashboard → Project Settings → API Keys).
 3. Run the SQL files in `supabase/sql/` in order, in the Supabase SQL Editor.
 
+### Database tests
+
+The files in `supabase/tests/` check the database permissions. Run each one in the Supabase SQL Editor after the matching file in `supabase/sql/`. They use test accounts only and remove them at the end. The last line must show `TODOS LOS TESTS OK`; otherwise the error says which test failed.
+
 ## Run
 
 ```bash
