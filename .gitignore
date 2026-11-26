@@ -18,7 +18,6 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
-PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_8xPiS_ApW_ilOrtB05oqAQ_B2dqC9Fh
 
 # Vite
 vite.config.js.timestamp-*
