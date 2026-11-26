@@ -34,7 +34,7 @@ Decisiones: `docs/decisiones.md`.
 
 ## Prohibido
 
-- `git push` (lo hago yo).
+- Hacer push directamente a main o git push --force. Sí está permitido: subir la rama de la tarea, abrir la Pull Request y hacer el merge cuando la CI esté en verde y yo lo haya aprobado en el chat.
 - Añadir una dependencia sin preguntarme y explicar por qué.
 - Modificar el cahier des charges sin avisarme.
 - Secretos en el código: van en `.env`, que está en `.gitignore`. Las claves de Supabase nunca en el repo.
