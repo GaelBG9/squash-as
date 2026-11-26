@@ -22,7 +22,10 @@ begin
 	insert into public.jugadores (id, nombre, email, grupo, rol) values
 		(id_a, 'Jugador A', 'jugador.a@ejemplo.test', 1, 'jugador'),
 		(id_b, 'Jugador B', 'jugador.b@ejemplo.test', 2, 'jugador'),
-		(id_admin, 'Admin Prueba', 'admin@ejemplo.test', 1, 'admin');
+		(id_admin, 'Admin Prueba', 'admin@ejemplo.test', 1, 'admin')
+	-- Desde la 0.3 el perfil ya lo crea el trigger al crear la cuenta: aquí solo se completa.
+	on conflict (id) do update
+		set nombre = excluded.nombre, grupo = excluded.grupo, rol = excluded.rol;
 
 	-- Simular al jugador A conectado ------------------------------------------
 	perform set_config('role', 'authenticated', true);
