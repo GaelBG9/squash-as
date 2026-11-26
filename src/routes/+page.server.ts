@@ -1,4 +1,3 @@
-import { leerMensajePrueba } from '#lib/prueba-conexion.ts';
 import { leerPerfil } from '#lib/perfil.ts';
 import type { PageServerLoad } from './$types';
 
@@ -11,15 +10,13 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	if (!locals.supabase) {
 		return {
 			errorLogin,
-			prueba: { ok: false as const, error: locals.errorConfig ?? 'Supabase no configurado.' },
+			errorConfig: locals.errorConfig ?? 'Supabase no está configurado.',
 			perfil: { estado: 'sin-sesion' as const }
 		};
 	}
 
+	// Sin sesión, `leerPerfil` no consulta `jugadores` (R10: solo para usuarios conectados).
 	const usuario = await locals.obtenerUsuario();
-	const [prueba, perfil] = await Promise.all([
-		leerMensajePrueba(locals.supabase),
-		leerPerfil(locals.supabase, usuario?.id ?? null)
-	]);
-	return { errorLogin, prueba, perfil };
+	const perfil = await leerPerfil(locals.supabase, usuario?.id ?? null);
+	return { errorLogin, errorConfig: null, perfil };
 };

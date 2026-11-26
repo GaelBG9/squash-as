@@ -7,6 +7,10 @@
 
 <h1>Squash AS</h1>
 
+{#if data.errorConfig}
+	<p role="alert">{data.errorConfig}</p>
+{/if}
+
 {#if data.errorLogin}
 	<p role="alert">{data.errorLogin}</p>
 {/if}
@@ -24,6 +28,7 @@
 {/if}
 
 {#if data.perfil.estado === 'sin-sesion'}
+	<p>Conéctate con tu cuenta Google para ver tu perfil.</p>
 	<form method="POST" action="/auth/login">
 		<button type="submit">Conectarse con Google</button>
 	</form>
@@ -31,11 +36,4 @@
 	<form method="POST" action="/auth/logout">
 		<button type="submit">Desconectarse</button>
 	</form>
-{/if}
-
-<hr />
-{#if data.prueba.ok}
-	<p><small>Conexión con Supabase: {data.prueba.mensaje}</small></p>
-{:else}
-	<p role="alert"><small>{data.prueba.error}</small></p>
 {/if}

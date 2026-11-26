@@ -11,7 +11,7 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Criterio: un jugador solo puede modificar su propio perfil; el admin puede modificarlos todos.
 - [x] 0.3 Login con Google y creación automática del perfil jugador
       Criterio: una cuenta Google nueva se conecta y obtiene el rol jugador sin intervención del admin; Gaël tiene el rol admin.
-- [ ] 0.4 Borrar la tabla `prueba_conexion` (de la tarea 0.1) cuando el login (0.3) funcione
+- [x] 0.4 Borrar la tabla `prueba_conexion` (de la tarea 0.1) cuando el login (0.3) funcione
       Criterio: la tabla ya no existe en Supabase y la página de inicio muestra el perfil del jugador conectado (sin sesión, `jugadores` no se puede leer: R10).
 - [x] 0.5 Fijar los finales de línea con `.gitattributes` (`* text=auto eol=lf`)
       Criterio: en Windows, `scripts/verificar.sh` no da avisos de Prettier en archivos recién descargados de GitHub.
