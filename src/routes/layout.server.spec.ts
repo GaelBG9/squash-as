@@ -60,9 +60,9 @@ describe('load del layout (todas las páginas)', () => {
 	});
 
 	it('avisa si falta configurar Supabase', async () => {
-		const datos = await cargar({ errorConfig: 'Falta configurar Supabase' });
+		const datos = await cargar({ errorConfig: 'Supabase n’est pas configuré' });
 		expect(datos).toMatchObject({
-			errorConfig: 'Falta configurar Supabase',
+			errorConfig: 'Supabase n’est pas configuré',
 			perfil: { estado: 'sin-sesion' }
 		});
 	});

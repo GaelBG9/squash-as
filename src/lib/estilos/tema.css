@@ -120,7 +120,7 @@ textarea {
 	white-space: nowrap;
 }
 
-/* Etiqueta pequeña en mayúsculas, p. ej. "Tu perfil". */
+/* Etiqueta pequeña en mayúsculas, p. ej. "Ton profil". */
 .etiqueta {
 	font-size: var(--texto-pequeno);
 	text-transform: uppercase;

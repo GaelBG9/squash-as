@@ -33,7 +33,7 @@
 
 <!-- Google exige que la página principal enlace a la política de privacidad. -->
 <footer class="pie">
-	<a href={resolve('/privacidad')}>Política de privacidad</a>
+	<a href={resolve('/confidentialite')}>Politique de confidentialité</a>
 </footer>
 
 <style>

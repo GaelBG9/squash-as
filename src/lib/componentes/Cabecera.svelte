@@ -30,7 +30,7 @@
 			{#if nombre}
 				<span class="avatar" title={nombre}>
 					<span aria-hidden="true">{iniciales(nombre)}</span>
-					<span class="solo-lector">Conectado como {nombre}</span>
+					<span class="solo-lector">Connecté en tant que {nombre}</span>
 				</span>
 			{/if}
 			<button
@@ -47,7 +47,7 @@
 						<path d="M4 7h16M4 12h16M4 17h16" />
 					{/if}
 				</svg>
-				<span class="solo-lector">{menuAbierto ? 'Cerrar el menú' : 'Abrir el menú'}</span>
+				<span class="solo-lector">{menuAbierto ? 'Fermer le menu' : 'Ouvrir le menu'}</span>
 			</button>
 		</div>
 	</div>

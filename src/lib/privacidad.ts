@@ -34,28 +34,28 @@ export type DatoGuardado = {
 /** Datos de tu perfil de jugador que guarda la app (tabla `jugadores`). */
 export const DATOS_GUARDADOS: readonly DatoGuardado[] = [
 	{
-		dato: 'Nombre',
-		para: 'Mostrarte en los partidos y las clasificaciones. Viene de tu cuenta Google y puedes cambiarlo.',
+		dato: 'Nom',
+		para: 'T’afficher dans les matchs et les classements. Il vient de ton compte Google et tu peux le modifier.',
 		columnas: ['nombre']
 	},
 	{
-		dato: 'Email de Google',
-		para: 'Saber qué cuenta es la tuya y poder contactarte si hay un problema con un resultado.',
+		dato: 'E-mail Google',
+		para: 'Savoir quel compte est le tien et pouvoir te contacter en cas de problème avec un résultat.',
 		columnas: ['email']
 	},
 	{
-		dato: 'Grupo (1 o 2) y rol (jugador o administrador)',
-		para: 'Organizar las clases y decidir quién puede gestionar miembros y torneos. Solo el administrador los cambia.',
+		dato: 'Groupe (1 ou 2) et rôle (joueur ou administrateur)',
+		para: 'Organiser les cours et décider qui peut gérer les membres et les tournois. Seul l’administrateur peut les modifier.',
 		columnas: ['grupo', 'rol']
 	},
 	{
-		dato: 'Nivel Glicko-2 (rating, incertidumbre y volatilidad)',
-		para: 'Calcular la clasificación de nivel a partir de tus partidos confirmados.',
+		dato: 'Niveau Glicko-2 (classement, incertitude et volatilité)',
+		para: 'Calculer le classement par niveau à partir de tes matchs confirmés.',
 		columnas: ['rating', 'rd', 'volatilidad']
 	},
 	{
-		dato: 'Identificador interno y fecha de alta',
-		para: 'Relacionar tu perfil con tu cuenta y saber desde cuándo estás inscrito.',
+		dato: 'Identifiant interne et date d’inscription',
+		para: 'Relier ton profil à ton compte et savoir depuis quand tu es inscrit.',
 		columnas: ['id', 'creado_en']
 	}
 ];
@@ -66,11 +66,11 @@ export function columnasSinExplicar(datos: readonly DatoGuardado[] = DATOS_GUARD
 	return Object.keys(COLUMNAS_JUGADOR).filter((columna) => !explicadas.has(columna));
 }
 
-/** "2026-11-26" → "26 de noviembre de 2026". */
+/** "2026-11-26" → "26 novembre 2026". */
 export function fechaLegible(fecha: string): string {
 	const [anio, mes, dia] = fecha.split('-').map(Number);
 	// Mediodía UTC: el día no cambia sea cual sea la zona horaria del servidor.
-	return new Date(Date.UTC(anio, mes - 1, dia, 12)).toLocaleDateString('es', {
+	return new Date(Date.UTC(anio, mes - 1, dia, 12)).toLocaleDateString('fr', {
 		day: 'numeric',
 		month: 'long',
 		year: 'numeric',

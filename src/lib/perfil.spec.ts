@@ -68,12 +68,12 @@ describe('leerPerfil', () => {
 
 describe('textos del perfil', () => {
 	it('muestra el grupo o "sin asignar"', () => {
-		expect(textoGrupo(1)).toBe('Grupo 1');
-		expect(textoGrupo(null)).toContain('Sin asignar');
+		expect(textoGrupo(1)).toBe('Groupe 1');
+		expect(textoGrupo(null)).toContain('Non attribué');
 	});
 
 	it('traduce el rol', () => {
-		expect(textoRol('admin')).toBe('Administrador');
-		expect(textoRol('jugador')).toBe('Jugador');
+		expect(textoRol('admin')).toBe('Administrateur');
+		expect(textoRol('jugador')).toBe('Joueur');
 	});
 });

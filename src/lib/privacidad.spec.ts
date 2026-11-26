@@ -39,12 +39,12 @@ describe('contacto y fecha', () => {
 
 	it('la fecha de actualización es válida', () => {
 		expect(ULTIMA_ACTUALIZACION).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-		expect(fechaLegible(ULTIMA_ACTUALIZACION)).toBe('26 de noviembre de 2026');
+		expect(fechaLegible(ULTIMA_ACTUALIZACION)).toBe('26 novembre 2026');
 	});
 
 	it.each([
-		['2026-01-01', '1 de enero de 2026'],
-		['2026-12-31', '31 de diciembre de 2026']
+		['2026-01-01', '1 janvier 2026'],
+		['2026-12-31', '31 décembre 2026']
 	])('%s → %s (sin cambiar de día por la zona horaria)', (fecha, esperado) => {
 		expect(fechaLegible(fecha)).toBe(esperado);
 	});
