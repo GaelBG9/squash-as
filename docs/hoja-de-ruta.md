@@ -15,7 +15,7 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Criterio: la tabla ya no existe en Supabase y la página de inicio muestra el perfil del jugador conectado (sin sesión, `jugadores` no se puede leer: R10).
 - [x] 0.5 Fijar los finales de línea con `.gitattributes` (`* text=auto eol=lf`)
       Criterio: en Windows, `scripts/verificar.sh` no da avisos de Prettier en archivos recién descargados de GitHub.
-- [ ] 0.6 Publicar la app de Google en modo producción (necesita alojar la web: pregunta abierta 10)
+- [x] 0.6 Publicar la app de Google en modo producción (necesita alojar la web: pregunta abierta 10)
       Criterio: hay una página principal pública y una página de política de privacidad (qué datos guardamos y para qué); la app de Google pasa a "En producción" y cualquier cuenta Google puede conectarse sin estar en la lista de usuarios de prueba.
 - [x] 0.7 Diseño base de la interfaz (hacer antes de 1.1): maquetas para elegir estilo, colores del AS, tipografía, botones y formularios para móvil, cabecera con la sesión y menú de navegación; rediseñar la página de inicio con ese estilo
       Criterio: en un móvil (375 px de ancho) la página de inicio se ve sin scroll horizontal, con la cabecera y el menú comunes, botones de al menos 44 px de alto y el estilo elegido en la maqueta; los estilos y componentes están en `src/lib` para reutilizarlos en las pantallas siguientes.
