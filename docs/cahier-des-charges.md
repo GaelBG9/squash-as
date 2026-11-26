@@ -108,7 +108,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - Presupuesto: 0 euros, plan gratuito de Supabase (500 MB de BD, 2 proyectos activos, pausa tras 1 semana sin actividad).
 - Uso principal en móvil.
 - Volumen: los miembros de un AS (unas decenas de usuarios).
-- Alojamiento del frontend: _Por definir_.
+- Alojamiento del frontend: Vercel (plan Hobby gratuito), desplegado automáticamente en cada merge a `main`.
 
 ## 10. Decisiones y su porqué
 
@@ -140,5 +140,5 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 7. ¿Cómo se eligen los cabezas de serie: por rating Glicko-2 o por la clasificación de torneos?
 8. ¿Qué pasa si hay menos o más de 16 inscritos en un torneo?
 9. ¿Los partidos de torneo deben pesar más en Glicko-2 que los de entrenamiento?
-10. ¿Dónde se aloja el frontend (Vercel, Netlify, VPS)?
+10. ~~¿Dónde se aloja el frontend (Vercel, Netlify, VPS)?~~ Respondida: Vercel (ver sección 9).
 11. ¿Los grupos 1 y 2 tienen clasificaciones separadas o una común?
