@@ -31,3 +31,9 @@ Formato: fecha, decisión, alternativas consideradas, por qué.
 - **Decisión**: RLS decide qué filas puede ver o cambiar cada usuario (la suya; el admin, todas). Un trigger (`proteger_campos_jugador`) decide qué columnas: un jugador normal solo cambia su nombre. Los permisos se prueban con scripts en `supabase/tests/` que simulan usuarios conectados en el SQL Editor.
 - **Alternativas**: permisos por columnas con `GRANT UPDATE (nombre)` (también limitaría al admin, que usa el mismo rol `authenticated`); pgTAP o la CLI de Supabase con Docker para los tests.
 - **Por qué**: RLS solo trabaja por filas, y sin el trigger un jugador podría ponerse `rol = admin` o cambiarse el rating. Los scripts SQL no necesitan instalar nada; pasar a la CLI de Supabase queda para cuando haya más tablas.
+
+## 2026-11-26 - Login con Google: @supabase/ssr y perfil creado por trigger
+
+- **Decisión**: la sesión se guarda en cookies con `@supabase/ssr`; `src/hooks.server.ts` crea un cliente de Supabase por petición y verifica el usuario con `auth.getUser()`. El perfil en `jugadores` lo crea un trigger sobre `auth.users` al primer login. El rol admin se da a mano con una línea SQL, sin guardar ningún email en el repo.
+- **Alternativas**: login solo en el navegador con `supabase-js` (el servidor no sabría quién está conectado); crear el perfil desde el código de la app tras el login; escribir el email del admin en el SQL.
+- **Por qué**: es la forma documentada por Supabase para SvelteKit y permite que las páginas del servidor respeten los permisos RLS de cada jugador. El trigger garantiza que toda cuenta tiene perfil, venga de donde venga. El email es un dato personal y el repo está en GitHub.
