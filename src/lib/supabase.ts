@@ -23,7 +23,7 @@ export function leerConfigSupabase(env: Record<string, string | undefined>): Res
 	if (!url || !clave) {
 		return {
 			ok: false,
-			error: `Falta configurar Supabase (${faltan.join(', ')}): copia .env.example a .env y rellénalo.`
+			error: `Supabase n’est pas configuré (${faltan.join(', ')}) : copie .env.example vers .env et remplis-le.`
 		};
 	}
 	return { ok: true, config: { url, clave } };

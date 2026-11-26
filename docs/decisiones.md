@@ -55,3 +55,9 @@ Formato: fecha, decisión, alternativas consideradas, por qué.
 - **Decisión**: la web se aloja en Vercel (plan Hobby gratuito) con el `adapter-auto` que ya tenemos, que detecta Vercel solo. La política de privacidad es una página de la app (`/privacidad`), enlazada desde el pie de todas las páginas. La lista de datos que muestra viene de `src/lib/privacidad.ts`, que obliga (al compilar y en un test) a explicar cada columna de `jugadores`.
 - **Alternativas**: Netlify (parecido); Cloudflare Pages (habría que añadir su adaptador); un VPS (cuesta dinero y hay que mantenerlo). Para la política, un texto suelto o un documento externo.
 - **Por qué**: Vercel funciona sin dependencias nuevas y despliega solo en cada merge a `main`. Google pide una página principal pública y una política de privacidad para publicar la app en producción. Generar la lista desde el código evita que la política se quede desactualizada cuando añadamos datos.
+
+## 2026-11-26 - Interfaz en francés, código en español
+
+- **Decisión**: todo lo que ve el usuario está en francés: textos, títulos, mensajes de error, textos para lectores de pantalla, fechas (`toLocaleDateString('fr')`), `lang="fr"` y las URLs (la política de privacidad pasa de `/privacidad` a `/confidentialite`). Se tutea al jugador, como en un club. Los nombres de variables, comentarios y la documentación siguen en español.
+- **Alternativas**: una librería de traducción (i18n) con varios idiomas; traducir también el código.
+- **Por qué**: los miembros del AS hablan francés y la app tiene un solo idioma, así que una librería i18n sería complejidad sin uso. Cambiar los nombres del código no aporta nada al usuario y rompería la coherencia con la documentación.

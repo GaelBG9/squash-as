@@ -2,7 +2,7 @@ import { redirect } from '@sveltejs/kit';
 import { PUBLIC_SUPABASE_URL } from '$app/env/public';
 import type { RequestHandler } from './$types';
 
-// El botón "Conectarse con Google" envía un formulario (POST) aquí.
+// El botón "Se connecter avec Google" envía un formulario (POST) aquí.
 export const POST: RequestHandler = async ({ locals, url }) => {
 	if (!locals.supabase || !PUBLIC_SUPABASE_URL) redirect(303, '/');
 

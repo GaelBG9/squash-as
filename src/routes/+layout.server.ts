@@ -5,7 +5,7 @@ import type { LayoutServerLoad } from './$types';
 export const load: LayoutServerLoad = async ({ locals }) => {
 	if (!locals.supabase) {
 		return {
-			errorConfig: locals.errorConfig ?? 'Supabase no está configurado.',
+			errorConfig: locals.errorConfig ?? 'Supabase n’est pas configuré.',
 			perfil: { estado: 'sin-sesion' as const }
 		};
 	}

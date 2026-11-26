@@ -26,20 +26,22 @@ export async function leerPerfil(
 			.overrideTypes<DatosPerfil | null, { merge: false }>();
 
 		if (error)
-			return { estado: 'error', error: `No se ha podido leer tu perfil: ${error.message}` };
+			return { estado: 'error', error: `Impossible de lire ton profil : ${error.message}` };
 		if (!data) return { estado: 'sin-perfil' };
 		return { estado: 'conectado', jugador: data };
 	} catch (e) {
 		const detalle = e instanceof Error ? e.message : String(e);
-		return { estado: 'error', error: `No se ha podido contactar con Supabase: ${detalle}` };
+		return { estado: 'error', error: `Impossible de contacter Supabase : ${detalle}` };
 	}
 }
 
 /** Texto para mostrar el grupo, que puede no estar asignado todavía. */
 export function textoGrupo(grupo: DatosPerfil['grupo']): string {
-	return grupo === null ? 'Sin asignar (lo asigna el administrador)' : `Grupo ${grupo}`;
+	return grupo === null
+		? 'Non attribué (c’est l’administrateur qui l’attribue)'
+		: `Groupe ${grupo}`;
 }
 
 export function textoRol(rol: DatosPerfil['rol']): string {
-	return rol === 'admin' ? 'Administrador' : 'Jugador';
+	return rol === 'admin' ? 'Administrateur' : 'Joueur';
 }

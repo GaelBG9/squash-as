@@ -20,7 +20,9 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
 - [x] 0.7 Diseño base de la interfaz (hacer antes de 1.1): maquetas para elegir estilo, colores del AS, tipografía, botones y formularios para móvil, cabecera con la sesión y menú de navegación; rediseñar la página de inicio con ese estilo
       Criterio: en un móvil (375 px de ancho) la página de inicio se ve sin scroll horizontal, con la cabecera y el menú comunes, botones de al menos 44 px de alto y el estilo elegido en la maqueta; los estilos y componentes están en `src/lib` para reutilizarlos en las pantallas siguientes.
 - [ ] 0.8 Ocultar el email de los demás jugadores (aparecido en la tarea 0.6)
-      Criterio: un jugador conectado ve el nombre, el grupo y el nivel de los demás, pero solo su propio email; el admin ve todos. Al terminar, actualizar "Quién puede verlos" en `/privacidad`.
+      Criterio: un jugador conectado ve el nombre, el grupo y el nivel de los demás, pero solo su propio email; el admin ve todos. Al terminar, actualizar "Qui peut les voir" en `/confidentialite`.
+- [x] 0.9 Traducir toda la interfaz al francés (textos, URLs, mensajes de error, `lang="fr"`)
+      Criterio: ningún texto visible de la app queda en español; la política de privacidad está en `/confidentialite`.
 
 ## Fase 1 - MVP
 

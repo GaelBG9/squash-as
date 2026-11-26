@@ -107,6 +107,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - Backend y base de datos: Supabase (PostgreSQL + login + API automática).
 - Presupuesto: 0 euros, plan gratuito de Supabase (500 MB de BD, 2 proyectos activos, pausa tras 1 semana sin actividad).
 - Uso principal en móvil.
+- Idioma de la interfaz: francés (todo el texto que ven los usuarios, incluidas las URLs y los mensajes de error). El código y la documentación siguen en español.
 - Volumen: los miembros de un AS (unas decenas de usuarios).
 - Alojamiento del frontend: Vercel (plan Hobby gratuito), desplegado automáticamente en cada merge a `main`.
 

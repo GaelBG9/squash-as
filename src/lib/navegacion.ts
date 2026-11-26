@@ -4,7 +4,7 @@ import type { RouteId } from '$app/types';
 export type EntradaMenu = { texto: string; ruta: RouteId };
 
 /** Entradas del menú. Cada página nueva añade aquí la suya cuando existe. */
-export const MENU: readonly EntradaMenu[] = [{ texto: 'Inicio', ruta: '/' }];
+export const MENU: readonly EntradaMenu[] = [{ texto: 'Accueil', ruta: '/' }];
 
 /**
  * ¿Es `ruta` la página en la que está el usuario?
@@ -20,5 +20,5 @@ export function iniciales(nombre: string): string {
 	const palabras = nombre.trim().split(/\s+/).filter(Boolean).slice(0, 2);
 	if (palabras.length === 0) return '?';
 	// `[...palabra]` separa por caracteres reales, no por unidades de código UTF-16.
-	return palabras.map((palabra) => [...palabra][0].toLocaleUpperCase('es')).join('');
+	return palabras.map((palabra) => [...palabra][0].toLocaleUpperCase('fr')).join('');
 }

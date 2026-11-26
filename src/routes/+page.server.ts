@@ -4,7 +4,7 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = ({ url }) => {
 	const errorLogin =
 		url.searchParams.get('error') === 'login'
-			? 'No se ha podido completar la conexión con Google. Inténtalo de nuevo.'
+			? 'La connexion avec Google n’a pas abouti. Réessaie.'
 			: null;
 	return { errorLogin };
 };

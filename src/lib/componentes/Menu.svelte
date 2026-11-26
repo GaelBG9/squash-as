@@ -6,14 +6,14 @@
 	type Props = {
 		id: string;
 		rutaActual: string;
-		/** Si hay sesión, el menú incluye "Desconectarse". */
+		/** Si hay sesión, el menú incluye "Se déconnecter". */
 		conectado: boolean;
 	};
 
 	let { id, rutaActual, conectado }: Props = $props();
 </script>
 
-<nav {id} class="menu" aria-label="Menú principal">
+<nav {id} class="menu" aria-label="Menu principal">
 	<ul>
 		{#each MENU as entrada (entrada.ruta)}
 			<li>
@@ -28,7 +28,7 @@
 	</ul>
 	{#if conectado}
 		<form method="POST" action="/auth/logout">
-			<Boton type="submit" variante="secundario">Desconectarse</Boton>
+			<Boton type="submit" variante="secundario">Se déconnecter</Boton>
 		</form>
 	{/if}
 </nav>

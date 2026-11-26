@@ -3,7 +3,7 @@ import { MENU, esRutaActual, iniciales } from './navegacion.ts';
 
 describe('MENU', () => {
 	it('empieza solo con el inicio', () => {
-		expect(MENU).toEqual([{ texto: 'Inicio', ruta: '/' }]);
+		expect(MENU).toEqual([{ texto: 'Accueil', ruta: '/' }]);
 	});
 
 	it('todas las rutas son internas', () => {
