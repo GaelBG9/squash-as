@@ -7,6 +7,7 @@
 	import '#lib/estilos/tema.css';
 	import favicon from '#lib/assets/favicon.svg';
 	import Cabecera from '#lib/componentes/Cabecera.svelte';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { LayoutProps } from './$types';
 
@@ -30,7 +31,26 @@
 	{@render children()}
 </main>
 
+<!-- Google exige que la página principal enlace a la política de privacidad. -->
+<footer class="pie">
+	<a href={resolve('/privacidad')}>Política de privacidad</a>
+</footer>
+
 <style>
+	.pie {
+		display: flex;
+		justify-content: center;
+		padding: var(--espacio-4) var(--espacio-4) var(--espacio-6);
+		font-size: var(--texto-pequeno);
+		color: var(--color-texto-suave);
+	}
+
+	.pie a {
+		display: inline-flex;
+		align-items: center;
+		min-height: var(--altura-toque);
+	}
+
 	.contenido {
 		display: grid;
 		gap: var(--espacio-5);
