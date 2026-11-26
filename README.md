@@ -14,6 +14,12 @@ Web platform for a university squash club: member list, match results with oppon
 npm install
 ```
 
+## Configure Supabase
+
+1. Copy `.env.example` to `.env` (never commit `.env`).
+2. Fill in `PUBLIC_SUPABASE_URL` and `PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Supabase dashboard → Project Settings → API Keys).
+3. Run the SQL files in `supabase/sql/` in order, in the Supabase SQL Editor.
+
 ## Run
 
 ```bash

@@ -5,12 +5,16 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
 ## Fase 0 - Base
 
 - [x] 0.0 Esqueleto SvelteKit con un test y CI
-- [ ] 0.1 Crear el proyecto Supabase y conectar la app (variables en `.env`, `.env.example` en el repo)
+- [x] 0.1 Crear el proyecto Supabase y conectar la app (variables en `.env`, `.env.example` en el repo)
       Criterio: la página de inicio lee un dato de prueba de Supabase en local.
 - [ ] 0.2 Tabla `jugadores` (nombre, email, grupo, rol, rating, RD, volatilidad) con permisos por filas
       Criterio: un jugador solo puede modificar su propio perfil; el admin puede modificarlos todos.
 - [ ] 0.3 Login con Google y creación automática del perfil jugador
       Criterio: una cuenta Google nueva se conecta y obtiene el rol jugador sin intervención del admin; Gaël tiene el rol admin.
+- [ ] 0.4 Borrar la tabla `prueba_conexion` (de la tarea 0.1) cuando `jugadores` tenga datos de prueba
+      Criterio: la tabla ya no existe en Supabase y la página de inicio lee de `jugadores`.
+- [ ] 0.5 Fijar los finales de línea con `.gitattributes` (`* text=auto eol=lf`)
+      Criterio: en Windows, `scripts/verificar.sh` no da avisos de Prettier en archivos recién descargados de GitHub.
 
 ## Fase 1 - MVP
 
