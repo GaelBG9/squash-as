@@ -65,7 +65,7 @@ Una "entidad" es un tipo de objeto que se guarda en la base de datos (una tabla)
 
 | Entidad             | Campos principales                                                                                                             | Relaciones                      |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
-| Jugador             | id, nombre, email Google, grupo (1/2), rol, rating, RD, volatilidad                                                            | -                               |
+| Jugador             | id, nombre, email Google (privado: R11), grupo (1/2), rol, rating, RD, volatilidad                                             | -                               |
 | Partido             | id, fecha, tipo (torneo/entrenamiento), jugador A, jugador B, ganador, estado (pendiente/confirmado/rechazado), registrado por | 2 jugadores; 0 o 1 torneo       |
 | Juego               | id, partido, número, puntos A, puntos B                                                                                        | pertenece a un partido          |
 | Torneo              | id, nombre, fecha, temporada                                                                                                   | tiene un cuadro y partidos      |
@@ -86,6 +86,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - R8. Si el rival no confirma ni rechaza un partido en 15 días desde su registro, el partido pasa automáticamente a "confirmado" y se envía un mensaje al administrador.
 - R9. Solo el administrador asigna o cambia el grupo y el rol de un jugador; el jugador solo puede cambiar su nombre.
 - R10. La lista de jugadores solo es visible para usuarios conectados.
+- R11. El email de un jugador solo lo ven él mismo y el administrador; los demás jugadores ven su nombre, grupo, rol y nivel.
 - Por definir: puntos por ronda en la clasificación de torneos, formato de los partidos (al mejor de 3 o de 5), reglas de emparejamiento, canal del mensaje al admin.
 
 ## 8. Criterios de aceptación
