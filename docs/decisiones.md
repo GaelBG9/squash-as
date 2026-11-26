@@ -43,3 +43,9 @@ Formato: fecha, decisión, alternativas consideradas, por qué.
 - **Decisión**: un `.gitattributes` con `* text=auto eol=lf` hace que Git guarde y descargue todos los archivos de texto con LF, también en Windows.
 - **Alternativas**: pedir a cada persona que configure `core.autocrlf=false` en su Git; configurar Prettier con `endOfLine: "auto"`.
 - **Por qué**: la regla viaja con el repo y manda sobre la configuración de cada ordenador, así nadie tiene que acordarse de nada. Prettier y la CI (Linux) esperan LF; aceptar los dos finales solo escondería el problema.
+
+## 2026-11-26 - Diseño base: estilo "Pelota", CSS propio y fuentes alojadas en la app
+
+- **Decisión**: estilo B · Pelota elegido entre tres maquetas (verde de pista, los dos puntos amarillos de la pelota de competición, tipografía Barlow / Barlow Condensed). Colores, tipografías y espacios son variables CSS en `src/lib/estilos/tema.css`, con modo oscuro automático; los componentes reutilizables están en `src/lib/componentes/`. Las fuentes vienen de `@fontsource/barlow` y `@fontsource/barlow-condensed`. El menú se define en `src/lib/navegacion.ts` con rutas tipadas (`RouteId`) y solo lista páginas que existen.
+- **Alternativas**: un framework de CSS (Tailwind) o una librería de componentes; cargar las fuentes desde Google Fonts; la fuente del sistema (estilo A).
+- **Por qué**: con pocas pantallas, CSS propio con variables es fácil de entender y no añade herramientas. Alojar las fuentes en la app evita que cada visita contacte con Google (privacidad de los jugadores) y funciona sin conexión a terceros. Tipar las rutas del menú hace que un enlace a una página inexistente no compile.
