@@ -37,3 +37,9 @@ Formato: fecha, decisión, alternativas consideradas, por qué.
 - **Decisión**: la sesión se guarda en cookies con `@supabase/ssr`; `src/hooks.server.ts` crea un cliente de Supabase por petición y verifica el usuario con `auth.getUser()`. El perfil en `jugadores` lo crea un trigger sobre `auth.users` al primer login. El rol admin se da a mano con una línea SQL, sin guardar ningún email en el repo.
 - **Alternativas**: login solo en el navegador con `supabase-js` (el servidor no sabría quién está conectado); crear el perfil desde el código de la app tras el login; escribir el email del admin en el SQL.
 - **Por qué**: es la forma documentada por Supabase para SvelteKit y permite que las páginas del servidor respeten los permisos RLS de cada jugador. El trigger garantiza que toda cuenta tiene perfil, venga de donde venga. El email es un dato personal y el repo está en GitHub.
+
+## 2026-11-26 - Finales de línea: LF en todos los sistemas con `.gitattributes`
+
+- **Decisión**: un `.gitattributes` con `* text=auto eol=lf` hace que Git guarde y descargue todos los archivos de texto con LF, también en Windows.
+- **Alternativas**: pedir a cada persona que configure `core.autocrlf=false` en su Git; configurar Prettier con `endOfLine: "auto"`.
+- **Por qué**: la regla viaja con el repo y manda sobre la configuración de cada ordenador, así nadie tiene que acordarse de nada. Prettier y la CI (Linux) esperan LF; aceptar los dos finales solo escondería el problema.

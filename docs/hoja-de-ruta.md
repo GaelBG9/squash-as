@@ -13,7 +13,7 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Criterio: una cuenta Google nueva se conecta y obtiene el rol jugador sin intervención del admin; Gaël tiene el rol admin.
 - [ ] 0.4 Borrar la tabla `prueba_conexion` (de la tarea 0.1) cuando el login (0.3) funcione
       Criterio: la tabla ya no existe en Supabase y la página de inicio muestra el perfil del jugador conectado (sin sesión, `jugadores` no se puede leer: R10).
-- [ ] 0.5 Fijar los finales de línea con `.gitattributes` (`* text=auto eol=lf`)
+- [x] 0.5 Fijar los finales de línea con `.gitattributes` (`* text=auto eol=lf`)
       Criterio: en Windows, `scripts/verificar.sh` no da avisos de Prettier en archivos recién descargados de GitHub.
 - [ ] 0.6 Publicar la app de Google en modo producción (necesita alojar la web: pregunta abierta 10)
       Criterio: hay una página principal pública y una página de política de privacidad (qué datos guardamos y para qué); la app de Google pasa a "En producción" y cualquier cuenta Google puede conectarse sin estar en la lista de usuarios de prueba.
