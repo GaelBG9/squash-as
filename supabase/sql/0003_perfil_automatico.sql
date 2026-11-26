@@ -42,3 +42,4 @@ create trigger crear_perfil_jugador
 -- Dar el rol admin (NO se guarda en el repo: el email es un dato personal).
 -- Tras tu primer login, ejecuta a mano en el SQL Editor, poniendo tu email:
 --   update public.jugadores set rol = 'admin' where email = 'TU_EMAIL_DE_GOOGLE';
+-- Si ya ejecutaste 0005_email_privado.sql, usa la línea de ese archivo (el email ya no está aquí).

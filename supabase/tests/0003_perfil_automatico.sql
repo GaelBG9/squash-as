@@ -1,5 +1,6 @@
 -- Tests del perfil automático (tarea 0.3).
 -- Ejecutar en el SQL Editor DESPUÉS de supabase/sql/0003_perfil_automatico.sql.
+-- Desde la 0.8 el email está en `jugadores_privado` (0005): estos tests usan ese esquema.
 -- Crea 2 cuentas DE PRUEBA, comprueba su perfil y las borra al final.
 -- Si todo va bien, la última consulta muestra "TODOS LOS TESTS OK".
 
@@ -25,8 +26,11 @@ begin
 	if j.rol <> 'jugador' then
 		raise exception 'FALLO test 1: rol esperado "jugador", obtenido "%"', j.rol;
 	end if;
-	if j.email <> 'con.nombre@ejemplo.test' then
-		raise exception 'FALLO test 1: email incorrecto "%"', j.email;
+	if not exists (
+		select 1 from public.jugadores_privado
+		where id = id_con_nombre and email = 'con.nombre@ejemplo.test'
+	) then
+		raise exception 'FALLO test 1: el email no se ha guardado en jugadores_privado';
 	end if;
 
 	-- Test 2: sin nombre de Google se usa la parte del email antes de la @
