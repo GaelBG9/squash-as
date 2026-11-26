@@ -39,3 +39,4 @@ Decisiones: `docs/decisiones.md`.
 - Modificar el cahier des charges sin avisarme.
 - Secretos en el código: van en `.env`, que está en `.gitignore`. Las claves de Supabase nunca en el repo.
 - Probar con datos reales de personas: solo datos de prueba.
+- Inventar datos de identidad o configuración: emails, nombres de usuario, URLs, claves, IDs. Si falta uno, pregúntamelo antes de usarlo. Los commits van con el autor de `git config` del repo; si no está configurado, para y pregunta.
