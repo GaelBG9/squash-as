@@ -7,7 +7,12 @@ create table if not exists public.prueba_conexion (
 	mensaje text not null
 );
 
--- RLS (Row Level Security): sin políticas, nadie puede leer ni escribir.
+-- Nivel 1, GRANT: qué roles pueden usar la tabla. Supabase ya no lo da por defecto
+-- a las tablas nuevas; sin esto la app recibe "permission denied for table".
+grant select on public.prueba_conexion to anon, authenticated;
+
+-- Nivel 2, RLS (Row Level Security): qué filas puede ver cada uno.
+-- Sin políticas, nadie puede leer ni escribir.
 alter table public.prueba_conexion enable row level security;
 
 -- Única política: cualquiera puede LEER. Nadie puede escribir desde la app.
