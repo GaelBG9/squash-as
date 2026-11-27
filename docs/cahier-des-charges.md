@@ -63,14 +63,14 @@ Una aplicación web simple, moderna y usable desde el móvil que centralice:
 
 Una "entidad" es un tipo de objeto que se guarda en la base de datos (una tabla).
 
-| Entidad             | Campos principales                                                                                                             | Relaciones                      |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------- |
-| Jugador             | id, nombre, email Google (privado: R11), grupo (1/2), rol, rating, RD, volatilidad                                             | -                               |
-| Partido             | id, fecha, tipo (torneo/entrenamiento), jugador A, jugador B, ganador, estado (pendiente/confirmado/rechazado), registrado por | 2 jugadores; 0 o 1 torneo       |
-| Juego               | id, partido, número, puntos A, puntos B                                                                                        | pertenece a un partido          |
-| Torneo              | id, nombre, fecha, temporada                                                                                                   | tiene un cuadro y partidos      |
-| Cuadro              | id, torneo, ronda, posición, jugador                                                                                           | pertenece a un torneo           |
-| Historial de rating | jugador, fecha, rating, RD                                                                                                     | permite la gráfica de evolución |
+| Entidad             | Campos principales                                                                                                                                                                                                              | Relaciones                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| Jugador             | id, nombre, email Google (privado: R11), grupo (1/2), rol, rating, RD, volatilidad                                                                                                                                              | -                               |
+| Partido             | id, fecha, tipo (torneo/entrenamiento), formato (libre/mejor de 3/mejor de 5), jugador A (quien registra), jugador B (rival), ganador (vacío si empate), estado (pendiente/confirmado/rechazado), registrado por, registrado en | 2 jugadores; 0 o 1 torneo       |
+| Juego               | id, partido, número, puntos A, puntos B                                                                                                                                                                                         | pertenece a un partido          |
+| Torneo              | id, nombre, fecha, temporada                                                                                                                                                                                                    | tiene un cuadro y partidos      |
+| Cuadro              | id, torneo, ronda, posición, jugador                                                                                                                                                                                            | pertenece a un torneo           |
+| Historial de rating | jugador, fecha, rating, RD                                                                                                                                                                                                      | permite la gráfica de evolución |
 
 RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 
@@ -87,12 +87,15 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - R9. Solo el administrador asigna o cambia el grupo y el rol de un jugador; el jugador solo puede cambiar su nombre.
 - R10. La lista de jugadores solo es visible para usuarios conectados.
 - R11. El email de un jugador solo lo ven él mismo y el administrador; los demás jugadores ven su nombre, grupo, rol y nivel.
-- Por definir: puntos por ronda en la clasificación de torneos, formato de los partidos (al mejor de 3 o de 5), reglas de emparejamiento, canal del mensaje al admin.
+- R12. Un partido tiene uno de tres formatos: libre (1 o 2 juegos sueltos, para los entrenamientos; un 1-1 es empate), al mejor de 3 (termina al ganar 2 juegos) o al mejor de 5 (termina al ganar 3). No se controla el tanteo de cada juego (no siempre se juega a 11), pero cada juego tiene un ganador.
+- R13. Solo uno de los dos jugadores puede registrar un partido; el otro es quien lo confirma o rechaza.
+- Por definir: puntos por ronda en la clasificación de torneos, reglas de emparejamiento, canal del mensaje al admin.
 
 ## 8. Criterios de aceptación
 
 - Historia 1: un usuario que pulsa "Conectarse con Google" y acepta llega a su perfil; un usuario no conectado no puede registrar partidos.
 - Historia 2: tras registrar 3-1 con juegos 11-7, 9-11, 11-5, 11-8, el partido aparece con estado "pendiente" y no cambia ningún rating.
+- Historia 2: en formato libre, un 1-1 se guarda como empate; al mejor de 3, un 1-1 no se puede registrar porque el partido no ha terminado.
 - Historia 3: cuando el rival confirma, el estado pasa a "confirmado" y los ratings de ambos jugadores cambian; si rechaza, el estado pasa a "rechazado" y los ratings no cambian.
 - Historia 3: quien registró el partido no ve el botón "Confirmar".
 - Historia 3: un partido registrado el 1 de marzo y sin respuesta pasa a "confirmado" el 16 de marzo, los ratings se actualizan y el administrador recibe un mensaje que lo indica.
@@ -135,7 +138,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 
 1. ¿Puede haber más de un administrador en el futuro?
 2. ¿Cuántos puntos da cada ronda en la clasificación general de torneos?
-3. ¿Los partidos se juegan al mejor de 3 o de 5 juegos? ¿Depende del contexto?
+3. ~~¿Los partidos se juegan al mejor de 3 o de 5 juegos? ¿Depende del contexto?~~ Respondida: se elige al registrar (libre, mejor de 3 o mejor de 5; ver R12).
 4. ¿Por qué canal llega el mensaje al admin (email, notificación en la app)? ¿Puede el admin anular un partido validado automáticamente?
 5. ¿Cómo se empareja el jueves: por grupo, por nivel Glicko-2 cercano, evitando repetir rivales?
 6. ¿Se incluye un cuadro de consolación (plate) para los eliminados en primera ronda?
