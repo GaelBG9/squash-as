@@ -41,7 +41,7 @@ Una aplicación web simple, moderna y usable desde el móvil que centralice:
 ## 4. Usuarios y roles
 
 - **Jugador**: cualquier persona con cuenta Google puede conectarse y obtiene este rol automáticamente.
-- **Administrador**: Gaël (responsable del proyecto). Gestiona miembros y torneos y recibe los avisos de validación automática.
+- **Administrador**: Gaël (responsable del proyecto). Gestiona miembros y torneos.
 
 ## 5. Funcionalidades (historias de usuario)
 
@@ -83,14 +83,14 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - R5. Un cuadro de torneo tiene 16 plazas.
 - R6. El marcador se guarda juego a juego (por ejemplo 11-7, 9-11, 11-5).
 - R7. Cualquier persona con cuenta Google puede registrarse; no hay validación previa por un administrador.
-- R8. Si el rival no confirma ni rechaza un partido en 15 días desde su registro, el partido pasa automáticamente a "confirmado" y se envía un mensaje al administrador.
+- R8. Si el rival no confirma ni rechaza un partido en 15 días desde su registro, el partido pasa automáticamente a "confirmado", sin avisar a nadie.
 - R9. Solo el administrador asigna o cambia el grupo y el rol de un jugador; el jugador solo puede cambiar su nombre.
 - R10. La lista de jugadores solo es visible para usuarios conectados.
 - R11. El email de un jugador solo lo ven él mismo y el administrador; los demás jugadores ven su nombre, grupo, rol y nivel.
 - R12. Un partido tiene uno de tres formatos: libre (1 o 2 juegos sueltos, para los entrenamientos; un 1-1 es empate), al mejor de 3 (termina al ganar 2 juegos) o al mejor de 5 (termina al ganar 3). No se controla el tanteo de cada juego (no siempre se juega a 11), pero cada juego tiene un ganador.
 - R13. Solo uno de los dos jugadores puede registrar un partido; el otro es quien lo confirma o rechaza.
 - R14. Los ratings Glicko-2 de los dos jugadores se actualizan en cuanto se confirma el partido (cada partido cuenta como un periodo del algoritmo); una victoria cuenta 1, una derrota 0 y un empate 0,5. La incertidumbre (RD) de un jugador crece por cada semana sin jugar antes de su siguiente partido, sin pasar nunca de 350.
-- Por definir: puntos por ronda en la clasificación de torneos, reglas de emparejamiento, canal del mensaje al admin.
+- Por definir: puntos por ronda en la clasificación de torneos, reglas de emparejamiento.
 
 ## 8. Criterios de aceptación
 
@@ -99,7 +99,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - Historia 2: en formato libre, un 1-1 se guarda como empate; al mejor de 3, un 1-1 no se puede registrar porque el partido no ha terminado.
 - Historia 3: cuando el rival confirma, el estado pasa a "confirmado" y los ratings de ambos jugadores cambian; si rechaza, el estado pasa a "rechazado" y los ratings no cambian.
 - Historia 3: quien registró el partido no ve el botón "Confirmar".
-- Historia 3: un partido registrado el 1 de marzo y sin respuesta pasa a "confirmado" el 16 de marzo, los ratings se actualizan y el administrador recibe un mensaje que lo indica.
+- Historia 3: un partido registrado el 1 de marzo y sin respuesta pasa a "confirmado" el 16 de marzo y los ratings se actualizan, sin enviar ningún aviso.
 - Historia 1: una cuenta Google nueva puede conectarse y registrar un partido sin intervención del administrador.
 - Historia 4: la clasificación lista a todos los jugadores con al menos un partido confirmado, ordenados por rating de mayor a menor.
 - Historia 5: con 16 inscritos, el cuadro tiene 8 partidos en primera ronda y los cabezas de serie 1 y 2 solo pueden enfrentarse en la final.
@@ -118,16 +118,16 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 
 ## 10. Decisiones y su porqué
 
-| Decisión                                               | Razón                                                                                               |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| SvelteKit                                              | Buen equilibrio entre simplicidad y aspecto moderno; buen proyecto para el CV.                      |
-| Supabase                                               | Login con Google integrado, PostgreSQL, permisos por filas, plan gratuito suficiente y open source. |
-| Glicko-2 en vez de ELO                                 | Más justo con jugadores que juegan poco o que son nuevos gracias a la incertidumbre (RD).           |
-| Confirmación de resultados                             | Evitar errores y trampas.                                                                           |
-| Registro abierto con Google                            | Simplicidad: nadie tiene que validar nuevas cuentas.                                                |
-| Validación automática a los 15 días con aviso al admin | Ningún resultado queda bloqueado y el admin puede vigilar los casos dudosos.                        |
-| Sin asistencia a clases                                | Decisión del responsable del proyecto.                                                              |
-| Guía let/stroke y planificador fuera de la V1          | Mantener un alcance realista; quedan como proyectos futuros.                                        |
+| Decisión                                       | Razón                                                                                               |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| SvelteKit                                      | Buen equilibrio entre simplicidad y aspecto moderno; buen proyecto para el CV.                      |
+| Supabase                                       | Login con Google integrado, PostgreSQL, permisos por filas, plan gratuito suficiente y open source. |
+| Glicko-2 en vez de ELO                         | Más justo con jugadores que juegan poco o que son nuevos gracias a la incertidumbre (RD).           |
+| Confirmación de resultados                     | Evitar errores y trampas.                                                                           |
+| Registro abierto con Google                    | Simplicidad: nadie tiene que validar nuevas cuentas.                                                |
+| Validación automática a los 15 días, sin aviso | Ningún resultado queda bloqueado, y sin avisos que acaben ignorados.                                |
+| Sin asistencia a clases                        | Decisión del responsable del proyecto.                                                              |
+| Guía let/stroke y planificador fuera de la V1  | Mantener un alcance realista; quedan como proyectos futuros.                                        |
 
 ## 11. Etapas
 
@@ -140,7 +140,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 1. ¿Puede haber más de un administrador en el futuro?
 2. ¿Cuántos puntos da cada ronda en la clasificación general de torneos?
 3. ~~¿Los partidos se juegan al mejor de 3 o de 5 juegos? ¿Depende del contexto?~~ Respondida: se elige al registrar (libre, mejor de 3 o mejor de 5; ver R12).
-4. ¿Por qué canal llega el mensaje al admin (email, notificación en la app)? ¿Puede el admin anular un partido validado automáticamente?
+4. ~~¿Por qué canal llega el mensaje al admin?~~ Respondida: no hay mensaje, la validación automática es silenciosa (ver R8). Sigue abierto: ¿puede el admin anular un partido validado automáticamente?
 5. ¿Cómo se empareja el jueves: por grupo, por nivel Glicko-2 cercano, evitando repetir rivales?
 6. ¿Se incluye un cuadro de consolación (plate) para los eliminados en primera ronda?
 7. ¿Cómo se eligen los cabezas de serie: por rating Glicko-2 o por la clasificación de torneos?
