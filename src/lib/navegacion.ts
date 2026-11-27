@@ -1,10 +1,23 @@
 import type { RouteId } from '$app/types';
 
 /** `RouteId` solo admite rutas que existen en `src/routes`: un enlace roto no compila. */
-export type EntradaMenu = { texto: string; ruta: RouteId };
+export type EntradaMenu = {
+	texto: string;
+	ruta: RouteId;
+	/** La página necesita sesión: sin ella, la entrada no se muestra. */
+	soloConectados?: true;
+};
 
 /** Entradas del menú. Cada página nueva añade aquí la suya cuando existe. */
-export const MENU: readonly EntradaMenu[] = [{ texto: 'Accueil', ruta: '/' }];
+export const MENU: readonly EntradaMenu[] = [
+	{ texto: 'Accueil', ruta: '/' },
+	{ texto: 'Mes matchs', ruta: '/matchs', soloConectados: true }
+];
+
+/** Entradas que ve quien visita la app, según tenga sesión o no. */
+export function entradasMenu(conectado: boolean): EntradaMenu[] {
+	return MENU.filter((entrada) => conectado || !entrada.soloConectados);
+}
 
 /**
  * ¿Es `ruta` la página en la que está el usuario?

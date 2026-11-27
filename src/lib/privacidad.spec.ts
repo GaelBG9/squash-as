@@ -10,7 +10,7 @@ import {
 } from './privacidad.ts';
 
 describe('datos declarados en la política de privacidad', () => {
-	it('explica todas las columnas de jugadores y jugadores_privado', () => {
+	it('explica todas las columnas de jugadores, jugadores_privado, partidos y juegos', () => {
 		expect(columnasSinExplicar()).toEqual([]);
 	});
 
@@ -42,13 +42,17 @@ describe('quién ve cada dato (R10 y R11)', () => {
 		expect(email && quienLoVe(email)).toBe('Visible uniquement par toi et l’administrateur');
 	});
 
-	it.each(['jugadores.nombre', 'jugadores.grupo', 'jugadores.rating'])(
-		'%s lo ven todos los conectados',
-		(columna) => {
-			const dato = buscar(columna);
-			expect(dato && quienLoVe(dato)).toBe('Visible par les joueurs connectés');
-		}
-	);
+	it.each([
+		'jugadores.nombre',
+		'jugadores.grupo',
+		'jugadores.rating',
+		'partidos.estado',
+		'juegos.puntos_a',
+		'partidos.registrado_por'
+	])('%s lo ven todos los conectados', (columna) => {
+		const dato = buscar(columna);
+		expect(dato && quienLoVe(dato)).toBe('Visible par les joueurs connectés');
+	});
 
 	it('un dato que está en las dos tablas cuenta como visible para todos', () => {
 		const id = buscar('jugadores_privado.id');
@@ -64,7 +68,7 @@ describe('contacto y fecha', () => {
 
 	it('la fecha de actualización es válida', () => {
 		expect(ULTIMA_ACTUALIZACION).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-		expect(fechaLegible(ULTIMA_ACTUALIZACION)).toBe('26 novembre 2026');
+		expect(fechaLegible(ULTIMA_ACTUALIZACION)).toBe('27 novembre 2026');
 	});
 
 	it.each([

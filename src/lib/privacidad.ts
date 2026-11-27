@@ -1,15 +1,16 @@
 import type { DatosPrivados, Jugador } from './jugadores.ts';
+import type { JuegoGuardado, Partido } from './partidos.ts';
 
 /** Email publicado en la política para pedir acceso, corrección o borrado de los datos. */
 export const EMAIL_CONTACTO = 'boennec.gael@gmail.com';
 
 /** Fecha de la última versión de la política (formato AAAA-MM-DD). */
-export const ULTIMA_ACTUALIZACION = '2026-11-26';
+export const ULTIMA_ACTUALIZACION = '2026-11-27';
 
 /**
  * Todas las columnas de las tablas con datos de jugadores. `satisfies` obliga a
- * listarlas todas: si se añade una columna a `Jugador` o a `DatosPrivados` y no
- * aquí, el código no compila.
+ * listarlas todas: si se añade una columna a uno de estos tipos y no aquí, el
+ * código no compila.
  */
 export const COLUMNAS_GUARDADAS = {
 	/** Visible para todos los jugadores conectados (R10). */
@@ -27,8 +28,31 @@ export const COLUMNAS_GUARDADAS = {
 	jugadores_privado: {
 		id: true,
 		email: true
-	} satisfies Record<keyof DatosPrivados, true>
+	} satisfies Record<keyof DatosPrivados, true>,
+	/** Visible para todos los jugadores conectados (tarea 1.1). */
+	partidos: {
+		id: true,
+		fecha: true,
+		tipo: true,
+		formato: true,
+		jugador_a: true,
+		jugador_b: true,
+		ganador: true,
+		estado: true,
+		registrado_por: true,
+		registrado_en: true
+	} satisfies Record<keyof Partido, true>,
+	/** Visible para todos los jugadores conectados (tarea 1.1). */
+	juegos: {
+		partido: true,
+		numero: true,
+		puntos_a: true,
+		puntos_b: true
+	} satisfies Record<keyof JuegoGuardado, true>
 } as const;
+
+/** Tablas que solo ven el propio jugador y el admin (R11); las demás, todos los conectados. */
+const TABLAS_PRIVADAS: readonly Tabla[] = ['jugadores_privado'];
 
 type Tabla = keyof typeof COLUMNAS_GUARDADAS;
 
@@ -46,7 +70,7 @@ export type DatoGuardado = {
 	columnas: readonly Columna[];
 };
 
-/** Datos de tu perfil de jugador que guarda la app (tablas `jugadores` y `jugadores_privado`). */
+/** Datos de jugadores que guarda la app: perfil (`jugadores`, `jugadores_privado`) y partidos. */
 export const DATOS_GUARDADOS: readonly DatoGuardado[] = [
 	{
 		dato: 'Nom',
@@ -72,6 +96,30 @@ export const DATOS_GUARDADOS: readonly DatoGuardado[] = [
 		dato: 'Identifiant interne et date d’inscription',
 		para: 'Relier ton profil à ton compte et savoir depuis quand tu es inscrit.',
 		columnas: ['jugadores.id', 'jugadores_privado.id', 'jugadores.creado_en']
+	},
+	{
+		dato: 'Matchs : adversaire, date, type, format, gagnant et statut (en attente, confirmé ou refusé)',
+		para: 'Permettre à ton adversaire de confirmer le résultat et calculer les classements et les statistiques.',
+		columnas: [
+			'partidos.id',
+			'partidos.fecha',
+			'partidos.tipo',
+			'partidos.formato',
+			'partidos.jugador_a',
+			'partidos.jugador_b',
+			'partidos.ganador',
+			'partidos.estado'
+		]
+	},
+	{
+		dato: 'Score de chaque jeu',
+		para: 'Afficher le résultat détaillé et calculer les statistiques (jeux et points gagnés ou perdus).',
+		columnas: ['juegos.partido', 'juegos.numero', 'juegos.puntos_a', 'juegos.puntos_b']
+	},
+	{
+		dato: 'Qui a enregistré un match, et quand',
+		para: 'Savoir qui doit le confirmer et le valider automatiquement s’il reste sans réponse 15 jours.',
+		columnas: ['partidos.registrado_por', 'partidos.registrado_en']
 	}
 ];
 
@@ -89,13 +137,15 @@ export function columnasSinExplicar(datos: readonly DatoGuardado[] = DATOS_GUARD
 }
 
 /**
- * Quién puede ver un dato, según su tabla: lo de `jugadores` lo ven todos los
- * conectados (R10); lo que solo está en `jugadores_privado`, tú y el admin (R11).
+ * Quién puede ver un dato, según su tabla: lo que solo está en tablas privadas
+ * (`jugadores_privado`) lo ven tú y el admin (R11); el resto, todos los conectados (R10).
  */
 export function quienLoVe(dato: DatoGuardado): string {
-	return dato.columnas.some((columna) => columna.startsWith('jugadores.'))
-		? 'Visible par les joueurs connectés'
-		: 'Visible uniquement par toi et l’administrateur';
+	const esPrivada = (columna: Columna) =>
+		TABLAS_PRIVADAS.some((tabla) => columna.startsWith(`${tabla}.`));
+	return dato.columnas.every(esPrivada)
+		? 'Visible uniquement par toi et l’administrateur'
+		: 'Visible par les joueurs connectés';
 }
 
 /** "2026-11-26" → "26 novembre 2026". */
