@@ -34,8 +34,14 @@ export function leerConfigSupabase(env: Record<string, string | undefined>): Res
  * Guarda la sesión del jugador en cookies: así Supabase sabe quién hace cada
  * consulta y aplica sus permisos (RLS).
  */
-export function crearClienteServidor(config: ConfigSupabase, cookies: Cookies) {
+export function crearClienteServidor(
+	config: ConfigSupabase,
+	cookies: Cookies,
+	/** Para medir el tiempo de cada consulta (ver `medicion.ts`). */
+	fetchPropio?: typeof fetch
+) {
 	return createServerClient(config.url, config.clave, {
+		...(fetchPropio && { global: { fetch: fetchPropio } }),
 		cookies: {
 			getAll: () => cookies.getAll(),
 			setAll: (lista) => {

@@ -125,7 +125,7 @@
 			</p>
 		</fieldset>
 
-		<Boton type="submit" disabled={enviando}>
+		<Boton type="submit" cargando={enviando}>
 			{enviando ? 'Enregistrement…' : 'Enregistrer le match'}
 		</Boton>
 		<a class="volver" href={resolve('/matchs')}>Annuler</a>

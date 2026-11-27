@@ -41,6 +41,12 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
 - [x] 1.5 Página de clasificación Glicko-2
       Criterio: lista a los jugadores con al menos un partido confirmado, ordenados por rating de mayor a menor.
       Nota: el RD guardado es el del último partido; el crecimiento por inactividad (R14) solo se aplica al jugar el siguiente. Si la clasificación debe mostrar el RD de hoy, calcularlo con `rd_tras_inactividad` al leer.
+- [x] 1.6 Rendimiento y respuesta de la interfaz (la web se sentía lenta)
+      Criterio: cada respuesta del servidor lleva la cabecera `Server-Timing` (tiempo total y de Supabase); la sesión se comprueba una sola vez por petición y sin viaje de red si el proyecto usa claves de firma asimétricas; al cambiar de página aparece una barra de carga, los botones reaccionan al tocarlos y muestran que trabajan, el menú y las páginas aparecen con una animación corta (desactivada con "reducir movimiento").
+- [ ] 1.7 Ejecutar las páginas de Vercel en la misma región que Supabase
+      Criterio: la región de las funciones de Vercel coincide con la del proyecto Supabase, y la cabecera `Server-Timing` de `/classement` muestra un tiempo de Supabase menor que antes del cambio.
+      Nota: Vercel usa Washington (EE. UU.) por defecto; falta saber la región del proyecto Supabase (Project Settings → General).
+      Nota: comprobar en Supabase (Authentication → JWT Keys / Signing Keys) si el proyecto usa claves asimétricas; si no, `getClaims()` sigue preguntando a Supabase en cada petición.
 
 ## Fase 2 - V2 (se detallará al terminar el MVP)
 
