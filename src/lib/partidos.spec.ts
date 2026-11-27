@@ -4,7 +4,9 @@ import {
 	fechaCorta,
 	leerMisPartidos,
 	leerRivales,
+	esRespuesta,
 	registrarPartido,
+	responderPartido,
 	textoEstado,
 	textoFormato,
 	textoMarcador,
@@ -95,6 +97,42 @@ describe('registrarPartido', () => {
 	});
 });
 
+describe('responderPartido', () => {
+	it('llama a la función responder_partido', async () => {
+		const { cliente, llamadas } = clienteFalso(datos(null));
+		expect(await responderPartido(cliente, 7, 'confirmado')).toEqual({ ok: true, datos: null });
+		expect(llamadas).toEqual([
+			{
+				metodo: 'rpc',
+				argumentos: ['responder_partido', { p_partido: 7, p_respuesta: 'confirmado' }]
+			}
+		]);
+	});
+
+	it('devuelve el mensaje de la base de datos si rechaza la respuesta', async () => {
+		const { cliente } = clienteFalso(() =>
+			Promise.resolve({ data: null, error: { message: 'Ce match a déjà reçu une réponse.' } })
+		);
+		expect(await responderPartido(cliente, 7, 'rechazado')).toEqual({
+			ok: false,
+			error: 'Impossible de répondre au match : Ce match a déjà reçu une réponse.'
+		});
+	});
+
+	it('no lanza excepción si la red falla', async () => {
+		const resultado = await responderPartido(clienteFalso(redCaida).cliente, 7, 'confirmado');
+		expect(resultado.ok).toBe(false);
+		if (!resultado.ok) expect(resultado.error).toContain('fetch failed');
+	});
+
+	it('solo acepta confirmado o rechazado', () => {
+		expect(esRespuesta('confirmado')).toBe(true);
+		expect(esRespuesta('rechazado')).toBe(true);
+		expect(esRespuesta('pendiente')).toBe(false);
+		expect(esRespuesta(null)).toBe(false);
+	});
+});
+
 describe('leerRivales', () => {
 	it('lista a todos menos a mí, por nombre', async () => {
 		const rivales = [{ id: ID_RIVAL, nombre: 'Rival Prueba' }];
@@ -124,6 +162,7 @@ function fila(cambios: Partial<FilaPartido> = {}): FilaPartido {
 		estado: 'pendiente',
 		registrado_por: ID_YO,
 		registrado_en: '2026-11-27T18:00:00Z',
+		respondido_en: null,
 		// Desordenados a propósito: se ordenan por número.
 		juegos: [
 			{ numero: 3, puntos_a: 11, puntos_b: 5 },
@@ -152,7 +191,8 @@ describe('desdeMiPunto', () => {
 				{ a: 11, b: 5 },
 				{ a: 11, b: 8 }
 			],
-			registradoPorMi: true
+			registradoPorMi: true,
+			puedoResponder: false
 		});
 	});
 
@@ -161,7 +201,22 @@ describe('desdeMiPunto', () => {
 		expect(visto.rival).toBe('Yo Prueba');
 		expect(visto.resultado).toBe('derrota');
 		expect(visto.registradoPorMi).toBe(false);
+		expect(visto.puedoResponder).toBe(true);
 		expect(textoMarcador(visto.juegos)).toBe('1-3 · 7-11, 11-9, 5-11, 8-11');
+	});
+
+	it('criterio de la 1.2: quien registró no puede responder', () => {
+		// Aunque fuera jugador B (no debería pasar, R13), si lo registré no respondo (R2).
+		const registradoPorB = fila({ registrado_por: ID_RIVAL });
+		expect(desdeMiPunto(registradoPorB, ID_RIVAL).puedoResponder).toBe(false);
+		expect(desdeMiPunto(fila(), ID_YO).puedoResponder).toBe(false);
+	});
+
+	it('un partido ya confirmado o rechazado no se puede responder', () => {
+		for (const estado of ['confirmado', 'rechazado'] as const) {
+			const respondido = fila({ estado, respondido_en: '2026-11-28T10:00:00Z' });
+			expect(desdeMiPunto(respondido, ID_RIVAL).puedoResponder).toBe(false);
+		}
 	});
 
 	it('empate en formato libre', () => {
