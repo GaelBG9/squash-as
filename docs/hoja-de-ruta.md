@@ -34,8 +34,8 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Criterio: los ratings de ambos jugadores cambian tras la confirmación y se guarda el historial.
       Nota: rating/RD/volatilidad están protegidos por el trigger `proteger_campos_jugador`; el cálculo debe hacerse en una función `security definer` (el trigger no bloquea a las funciones internas).
       Nota: un empate (formato libre 1-1, R12) cuenta como 0,5 para cada jugador en Glicko-2.
-- [ ] 1.4 Validación automática a los 15 días con aviso al admin
-      Criterio: un partido registrado el 1 de marzo sin respuesta pasa a "confirmado" el 16 de marzo y el admin recibe un aviso (canal por definir).
+- [ ] 1.4 Validación automática a los 15 días (sin aviso al admin)
+      Criterio: un partido registrado el 1 de marzo sin respuesta pasa a "confirmado" el 16 de marzo y los ratings de los dos jugadores cambian; nadie recibe ningún aviso.
       Nota: la restricción `respondido_si_no_pendiente` (tarea 1.2) obliga a rellenar `respondido_en` al cambiar el estado; decidir cómo distinguir una validación automática de una confirmación del rival.
       Nota: tras validar, llamar a `aplicar_glicko2(partido)` (tarea 1.3) para actualizar los ratings.
 - [ ] 1.5 Página de clasificación Glicko-2
