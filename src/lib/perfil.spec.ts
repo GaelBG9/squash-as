@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { leerPerfil, textoGrupo, textoRol, type DatosPerfil } from './perfil.ts';
+import { leerPerfil, textoGrupo, textoNivel, textoRol, type DatosPerfil } from './perfil.ts';
 import type { ClienteSupabase } from './supabase.ts';
 
 type Respuesta = { data: DatosPerfil | null; error: { message: string } | null };
@@ -36,7 +36,13 @@ describe('leerPerfil', () => {
 	});
 
 	it('devuelve el perfil del jugador conectado', async () => {
-		const jugador: DatosPerfil = { nombre: 'Jugadora Prueba', grupo: null, rol: 'jugador' };
+		const jugador: DatosPerfil = {
+			nombre: 'Jugadora Prueba',
+			grupo: null,
+			rol: 'jugador',
+			rating: 1500,
+			rd: 350
+		};
 		const { cliente, llamadas } = clienteFalso(() =>
 			Promise.resolve({ data: jugador, error: null })
 		);
@@ -75,5 +81,11 @@ describe('textos del perfil', () => {
 	it('traduce el rol', () => {
 		expect(textoRol('admin')).toBe('Administrateur');
 		expect(textoRol('jugador')).toBe('Joueur');
+	});
+
+	it('muestra el nivel redondeado con su incertidumbre', () => {
+		expect(textoNivel(1500, 350)).toBe('1500 ± 350');
+		expect(textoNivel(1662.3108, 290.3189)).toBe('1662 ± 290');
+		expect(textoNivel(1337.5, 49.5)).toBe('1338 ± 50');
 	});
 });

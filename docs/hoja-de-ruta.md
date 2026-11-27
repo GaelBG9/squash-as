@@ -30,15 +30,17 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Criterio: tras registrar 3-1 (11-7, 9-11, 11-5, 11-8), el partido aparece "pendiente" y ningún rating cambia.
 - [x] 1.2 Confirmar o rechazar un partido
       Criterio: al confirmar, el estado pasa a "confirmado"; al rechazar, a "rechazado" sin cambio de rating; quien registró no ve "Confirmar".
-- [ ] 1.3 Cálculo Glicko-2 al confirmar un partido (función probada con los ejemplos del artículo de Glickman)
+- [x] 1.3 Cálculo Glicko-2 al confirmar un partido (función probada con los ejemplos del artículo de Glickman)
       Criterio: los ratings de ambos jugadores cambian tras la confirmación y se guarda el historial.
       Nota: rating/RD/volatilidad están protegidos por el trigger `proteger_campos_jugador`; el cálculo debe hacerse en una función `security definer` (el trigger no bloquea a las funciones internas).
       Nota: un empate (formato libre 1-1, R12) cuenta como 0,5 para cada jugador en Glicko-2.
 - [ ] 1.4 Validación automática a los 15 días con aviso al admin
       Criterio: un partido registrado el 1 de marzo sin respuesta pasa a "confirmado" el 16 de marzo y el admin recibe un aviso (canal por definir).
       Nota: la restricción `respondido_si_no_pendiente` (tarea 1.2) obliga a rellenar `respondido_en` al cambiar el estado; decidir cómo distinguir una validación automática de una confirmación del rival.
+      Nota: tras validar, llamar a `aplicar_glicko2(partido)` (tarea 1.3) para actualizar los ratings.
 - [ ] 1.5 Página de clasificación Glicko-2
       Criterio: lista a los jugadores con al menos un partido confirmado, ordenados por rating de mayor a menor.
+      Nota: el RD guardado es el del último partido; el crecimiento por inactividad (R14) solo se aplica al jugar el siguiente. Si la clasificación debe mostrar el RD de hoy, calcularlo con `rd_tras_inactividad` al leer.
 
 ## Fase 2 - V2 (se detallará al terminar el MVP)
 

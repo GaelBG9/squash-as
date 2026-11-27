@@ -18,6 +18,7 @@ declare
 	caso jsonb;
 	respuesta text;
 	fallo_esperado boolean;
+	ratings_antes jsonb;
 begin
 	-- Preparación (como dueño de la base de datos) ---------------------------
 	insert into auth.users (id, email, raw_user_meta_data) values
@@ -78,6 +79,11 @@ begin
 		raise exception 'FALLO test 4: estado "%" tras confirmar', fila_partido.estado;
 	end if;
 
+	-- Valores tras la confirmación (desde la tarea 1.3, confirmar aplica Glicko-2;
+	-- el cálculo se prueba en supabase/tests/0008_glicko2.sql).
+	select jsonb_agg(jsonb_build_array(rating, rd, volatilidad) order by id) into ratings_antes
+	from public.jugadores where id in (id_a, id_b);
+
 	-- Test 5 (criterio de la 1.2): B rechaza -> "rechazado"
 	perform public.responder_partido(p_rechazar, 'rechazado');
 	select * into fila_partido from public.partidos where id = p_rechazar;
@@ -85,11 +91,10 @@ begin
 		raise exception 'FALLO test 5: estado "%" tras rechazar', fila_partido.estado;
 	end if;
 
-	-- Test 6: ningún rating cambia (ni al rechazar, ni al confirmar hasta la tarea 1.3)
-	select count(*) into filas from public.jugadores
-	where id in (id_a, id_b) and rating = 1500 and rd = 350 and volatilidad = 0.06;
-	if filas <> 2 then
-		raise exception 'FALLO test 6: un rating ha cambiado al responder';
+	-- Test 6: rechazar no cambia ningún rating
+	if (select jsonb_agg(jsonb_build_array(rating, rd, volatilidad) order by id)
+		from public.jugadores where id in (id_a, id_b)) is distinct from ratings_antes then
+		raise exception 'FALLO test 6: un rating ha cambiado al rechazar';
 	end if;
 
 	-- Test 7: no se puede responder dos veces (ni cambiar de opinión)
@@ -164,6 +169,7 @@ begin
 
 	-- Limpieza (otra vez como dueño) --------------------------------------------
 	perform set_config('role', 'none', true);
+	delete from public.historial_rating where jugador in (id_a, id_b);
 	delete from public.partidos where id_a in (jugador_a, jugador_b);
 	delete from auth.users where id in (id_a, id_b, id_c);
 	if exists (select 1 from public.jugadores where id in (id_a, id_b, id_c)) then

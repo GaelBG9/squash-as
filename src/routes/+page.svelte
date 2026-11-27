@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Boton from '#lib/componentes/Boton.svelte';
-	import { textoGrupo, textoRol } from '#lib/perfil.ts';
+	import { textoGrupo, textoNivel, textoRol } from '#lib/perfil.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -23,6 +23,10 @@
 		<div>
 			<dt class="etiqueta">Rôle</dt>
 			<dd>{textoRol(data.perfil.jugador.rol)}</dd>
+		</div>
+		<div>
+			<dt class="etiqueta">Niveau Glicko-2</dt>
+			<dd>{textoNivel(data.perfil.jugador.rating, data.perfil.jugador.rd)}</dd>
 		</div>
 	</dl>
 {:else if data.perfil.estado === 'sin-perfil'}

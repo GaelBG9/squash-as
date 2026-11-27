@@ -9,7 +9,7 @@ const ID_PRUEBA = '00000000-0000-4000-8000-0000000000c2';
 function clienteFalso() {
 	const tablas: string[] = [];
 	const respuesta = {
-		data: { nombre: 'Jugador Prueba', grupo: 2, rol: 'jugador' },
+		data: { nombre: 'Jugador Prueba', grupo: 2, rol: 'jugador', rating: 1500, rd: 350 },
 		error: null
 	};
 	const falso = {

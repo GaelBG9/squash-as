@@ -1,7 +1,7 @@
 import type { Jugador } from './jugadores.ts';
 import type { ClienteSupabase } from './supabase.ts';
 
-export type DatosPerfil = Pick<Jugador, 'nombre' | 'grupo' | 'rol'>;
+export type DatosPerfil = Pick<Jugador, 'nombre' | 'grupo' | 'rol' | 'rating' | 'rd'>;
 
 export type EstadoPerfil =
 	| { estado: 'sin-sesion' }
@@ -20,7 +20,7 @@ export async function leerPerfil(
 	try {
 		const { data, error } = await cliente
 			.from('jugadores')
-			.select('nombre, grupo, rol')
+			.select('nombre, grupo, rol, rating, rd')
 			.eq('id', idUsuario)
 			.maybeSingle()
 			.overrideTypes<DatosPerfil | null, { merge: false }>();
@@ -44,4 +44,12 @@ export function textoGrupo(grupo: DatosPerfil['grupo']): string {
 
 export function textoRol(rol: DatosPerfil['rol']): string {
 	return rol === 'admin' ? 'Administrateur' : 'Joueur';
+}
+
+/**
+ * Nivel Glicko-2 redondeado, con su incertidumbre (RD): "1662 ± 290".
+ * Un RD alto quiere decir que todavía no sabemos bien tu nivel.
+ */
+export function textoNivel(rating: number, rd: number): string {
+	return `${Math.round(rating)} ± ${Math.round(rd)}`;
 }

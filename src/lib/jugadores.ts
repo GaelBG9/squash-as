@@ -18,6 +18,22 @@ export type Jugador = {
 };
 
 /**
+ * Fila de la tabla `historial_rating` (ver supabase/sql/0008_glicko2.sql): los valores
+ * Glicko-2 de un jugador justo después de un partido confirmado. La escribe solo la
+ * base de datos; todos los jugadores conectados la leen.
+ */
+export type HistorialRating = {
+	id: number;
+	jugador: string;
+	partido: number;
+	/** Fecha en la que se jugó el partido. */
+	fecha: string;
+	rating: number;
+	rd: number;
+	volatilidad: number;
+};
+
+/**
  * Fila de la tabla `jugadores_privado` (ver supabase/sql/0005_email_privado.sql).
  * Cada jugador solo ve la suya; el admin, todas (R11).
  */
