@@ -40,7 +40,8 @@ export const COLUMNAS_GUARDADAS = {
 		ganador: true,
 		estado: true,
 		registrado_por: true,
-		registrado_en: true
+		registrado_en: true,
+		respondido_en: true
 	} satisfies Record<keyof Partido, true>,
 	/** Visible para todos los jugadores conectados (tarea 1.1). */
 	juegos: {
@@ -120,6 +121,11 @@ export const DATOS_GUARDADOS: readonly DatoGuardado[] = [
 		dato: 'Qui a enregistré un match, et quand',
 		para: 'Savoir qui doit le confirmer et le valider automatiquement s’il reste sans réponse 15 jours.',
 		columnas: ['partidos.registrado_por', 'partidos.registrado_en']
+	},
+	{
+		dato: 'Date de la réponse à un match (confirmation ou refus)',
+		para: 'Savoir quand ton adversaire a répondu, pour vérifier un résultat en cas de doute.',
+		columnas: ['partidos.respondido_en']
 	}
 ];
 

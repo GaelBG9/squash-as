@@ -13,13 +13,15 @@ export type Partido = {
 	formato: Formato;
 	/** Quien registró el partido (R13). */
 	jugador_a: string;
-	/** El rival, que tiene que confirmarlo (tarea 1.2). */
+	/** El rival, el único que puede confirmarlo o rechazarlo (R2). */
 	jugador_b: string;
 	/** `null` = empate (solo en formato libre). */
 	ganador: string | null;
 	estado: EstadoPartido;
 	registrado_por: string;
 	registrado_en: string;
+	/** Cuándo respondió el rival; `null` mientras está pendiente. */
+	respondido_en: string | null;
 };
 
 /** Fila de la tabla `juegos`. */
@@ -78,6 +80,34 @@ export async function registrarPartido(
 	}
 }
 
+/** Lo que el rival puede contestar a un partido pendiente. */
+export type Respuesta = Extract<EstadoPartido, 'confirmado' | 'rechazado'>;
+
+export function esRespuesta(valor: unknown): valor is Respuesta {
+	return valor === 'confirmado' || valor === 'rechazado';
+}
+
+/**
+ * Confirma o rechaza un partido con la función `responder_partido` de la base de
+ * datos, que comprueba que soy el rival y que el partido sigue pendiente.
+ */
+export async function responderPartido(
+	cliente: ClienteSupabase,
+	partido: number,
+	respuesta: Respuesta
+): Promise<Resultado<null>> {
+	try {
+		const { error } = (await cliente.rpc('responder_partido', {
+			p_partido: partido,
+			p_respuesta: respuesta
+		})) as { error: { message: string } | null };
+		if (error) return { ok: false, error: `Impossible de répondre au match : ${error.message}` };
+		return { ok: true, datos: null };
+	} catch (e) {
+		return { ok: false, error: errorDeRed(e) };
+	}
+}
+
 /** Lo que devuelve la consulta de `leerMisPartidos`. */
 export type FilaPartido = Partido & {
 	juegos: Omit<JuegoGuardado, 'partido'>[];
@@ -96,6 +126,8 @@ export type MiPartido = {
 	/** Juegos en orden: `a` son mis puntos y `b` los del rival. */
 	juegos: Juego[];
 	registradoPorMi: boolean;
+	/** Puedo confirmarlo o rechazarlo: está pendiente y soy el rival (R2, R13). */
+	puedoResponder: boolean;
 };
 
 /** Pasa una fila de la base de datos a mi punto de vista. */
@@ -117,7 +149,11 @@ export function desdeMiPunto(fila: FilaPartido, idUsuario: string): MiPartido {
 		rival,
 		resultado,
 		juegos,
-		registradoPorMi: fila.registrado_por === idUsuario
+		registradoPorMi: fila.registrado_por === idUsuario,
+		puedoResponder:
+			fila.estado === 'pendiente' &&
+			fila.jugador_b === idUsuario &&
+			fila.registrado_por !== idUsuario
 	};
 }
 

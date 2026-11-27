@@ -1,16 +1,78 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
+	import Boton from '#lib/componentes/Boton.svelte';
 	import {
 		fechaCorta,
 		textoEstado,
 		textoFormato,
 		textoMarcador,
-		textoResultado
+		textoResultado,
+		type MiPartido
 	} from '#lib/partidos.ts';
 	import type { PageProps } from './$types';
 
-	let { data }: PageProps = $props();
+	let { data, form }: PageProps = $props();
+
+	// Los partidos que esperan mi respuesta van arriba, aparte, para que no se pierdan.
+	const porResponder = $derived(
+		data.partidos.ok ? data.partidos.datos.filter((p) => p.puedoResponder) : []
+	);
+	const resto = $derived(
+		data.partidos.ok ? data.partidos.datos.filter((p) => !p.puedoResponder) : []
+	);
+
+	// Mientras se envía una respuesta, sus botones se desactivan (evita el doble clic).
+	let enviando = $state<number | null>(null);
 </script>
+
+{#snippet tarjeta(partido: MiPartido)}
+	<li class="tarjeta partido">
+		<div class="linea">
+			<span class="rival">contre {partido.rival}</span>
+			<span class={['estado', partido.estado]}>{textoEstado(partido.estado)}</span>
+		</div>
+		<p class="marcador">
+			<span class={['resultado', partido.resultado]}>{textoResultado(partido.resultado)}</span>
+			{textoMarcador(partido.juegos)}
+		</p>
+		<p class="detalle">
+			{fechaCorta(partido.fecha)} · {textoFormato(partido.formato)}
+			{#if !partido.registradoPorMi}· enregistré par {partido.rival}{/if}
+		</p>
+		{#if partido.puedoResponder}
+			{#if form && 'error' in form && form.partido === partido.id}
+				<p class="aviso" role="alert">{form.error}</p>
+			{/if}
+			<form
+				method="POST"
+				action="?/repondre"
+				class="respuesta"
+				use:enhance={() => {
+					enviando = partido.id;
+					return async ({ update }) => {
+						await update();
+						enviando = null;
+					};
+				}}
+			>
+				<input type="hidden" name="partido" value={partido.id} />
+				<Boton type="submit" name="respuesta" value="confirmado" disabled={enviando === partido.id}>
+					Confirmer
+				</Boton>
+				<Boton
+					type="submit"
+					name="respuesta"
+					value="rechazado"
+					variante="secundario"
+					disabled={enviando === partido.id}
+				>
+					Refuser
+				</Boton>
+			</form>
+		{/if}
+	</li>
+{/snippet}
 
 <svelte:head>
 	<title>Mes matchs · Squash AS</title>
@@ -29,29 +91,42 @@
 
 <a class="boton-enlace" href={resolve('/matchs/nouveau')}>Enregistrer un match</a>
 
+{#if form && 'respondido' in form}
+	<p class="confirmacion" role="status">
+		{form.respondido === 'confirmado'
+			? 'Match confirmé.'
+			: 'Match refusé. Il ne compte pas dans les classements.'}
+	</p>
+{:else if form && 'error' in form && form.partido === null}
+	<p class="aviso" role="alert">{form.error}</p>
+{/if}
+
 {#if !data.partidos.ok}
 	<p class="aviso" role="alert">{data.partidos.error}</p>
 {:else if data.partidos.datos.length === 0}
 	<p class="texto-suave">Tu n’as encore aucun match enregistré.</p>
 {:else}
-	<ul class="lista">
-		{#each data.partidos.datos as partido (partido.id)}
-			<li class="tarjeta partido">
-				<div class="linea">
-					<span class="rival">contre {partido.rival}</span>
-					<span class={['estado', partido.estado]}>{textoEstado(partido.estado)}</span>
-				</div>
-				<p class="marcador">
-					<span class={['resultado', partido.resultado]}>{textoResultado(partido.resultado)}</span>
-					{textoMarcador(partido.juegos)}
-				</p>
-				<p class="detalle">
-					{fechaCorta(partido.fecha)} · {textoFormato(partido.formato)}
-					{#if !partido.registradoPorMi}· enregistré par {partido.rival}{/if}
-				</p>
-			</li>
-		{/each}
-	</ul>
+	{#if porResponder.length > 0}
+		<section class="bloque" aria-labelledby="titulo-responder">
+			<h2 id="titulo-responder">À confirmer ({porResponder.length})</h2>
+			<p class="texto-suave">
+				Vérifie le score : si tu confirmes, le match compte pour le classement.
+			</p>
+			<ul class="lista">
+				{#each porResponder as partido (partido.id)}
+					{@render tarjeta(partido)}
+				{/each}
+			</ul>
+		</section>
+	{/if}
+	{#if resto.length > 0}
+		{#if porResponder.length > 0}<h2>Mes autres matchs</h2>{/if}
+		<ul class="lista">
+			{#each resto as partido (partido.id)}
+				{@render tarjeta(partido)}
+			{/each}
+		</ul>
+	{/if}
 {/if}
 
 <style>
@@ -142,5 +217,12 @@
 
 	.detalle {
 		font-size: var(--texto-pequeno);
+	}
+
+	/* Dos botones lado a lado; en pantallas muy estrechas, uno debajo del otro. */
+	.respuesta {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+		gap: var(--espacio-2);
 	}
 </style>
