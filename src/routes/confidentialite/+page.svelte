@@ -31,7 +31,10 @@
 
 	<section class="tarjeta">
 		<h2>Quelles données nous gardons et pourquoi</h2>
-		<p>Lors de ta première connexion avec Google, ton profil de joueur est créé avec :</p>
+		<p>
+			Lors de ta première connexion avec Google, ton profil de joueur est créé. L’application garde
+			ensuite ces données :
+		</p>
 		<dl class="lista-datos">
 			{#each DATOS_GUARDADOS as linea (linea.dato)}
 				<div>
@@ -61,8 +64,13 @@
 				Ton e-mail n’est visible que par toi et par l’administrateur. Les autres joueurs ne peuvent
 				pas le voir.
 			</li>
+			<li>Les joueurs connectés peuvent voir les matchs enregistrés, leur score et leur statut.</li>
 			<li>
 				Chaque joueur ne peut modifier que son propre nom. L’administrateur peut tout modifier.
+			</li>
+			<li>
+				Un match ne peut être enregistré que par l’un des deux joueurs, et son score ne peut plus
+				être modifié ensuite.
 			</li>
 			<li>Nous ne vendons ni ne cédons tes données à personne, et il n’y a pas de publicité.</li>
 		</ul>
