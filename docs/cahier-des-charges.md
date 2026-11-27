@@ -70,7 +70,7 @@ Una "entidad" es un tipo de objeto que se guarda en la base de datos (una tabla)
 | Juego               | id, partido, número, puntos A, puntos B                                                                                                                                                                                                        | pertenece a un partido          |
 | Torneo              | id, nombre, fecha, temporada                                                                                                                                                                                                                   | tiene un cuadro y partidos      |
 | Cuadro              | id, torneo, ronda, posición, jugador                                                                                                                                                                                                           | pertenece a un torneo           |
-| Historial de rating | jugador, fecha, rating, RD                                                                                                                                                                                                                     | permite la gráfica de evolución |
+| Historial de rating | jugador, partido, fecha del partido, rating, RD, volatilidad (valores tras cada partido confirmado)                                                                                                                                            | permite la gráfica de evolución |
 
 RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 
@@ -89,6 +89,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - R11. El email de un jugador solo lo ven él mismo y el administrador; los demás jugadores ven su nombre, grupo, rol y nivel.
 - R12. Un partido tiene uno de tres formatos: libre (1 o 2 juegos sueltos, para los entrenamientos; un 1-1 es empate), al mejor de 3 (termina al ganar 2 juegos) o al mejor de 5 (termina al ganar 3). No se controla el tanteo de cada juego (no siempre se juega a 11), pero cada juego tiene un ganador.
 - R13. Solo uno de los dos jugadores puede registrar un partido; el otro es quien lo confirma o rechaza.
+- R14. Los ratings Glicko-2 de los dos jugadores se actualizan en cuanto se confirma el partido (cada partido cuenta como un periodo del algoritmo); una victoria cuenta 1, una derrota 0 y un empate 0,5. La incertidumbre (RD) de un jugador crece por cada semana sin jugar antes de su siguiente partido, sin pasar nunca de 350.
 - Por definir: puntos por ronda en la clasificación de torneos, reglas de emparejamiento, canal del mensaje al admin.
 
 ## 8. Criterios de aceptación
