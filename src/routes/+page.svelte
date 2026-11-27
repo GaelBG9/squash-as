@@ -4,6 +4,8 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	let conectando = $state(false);
 </script>
 
 {#if data.errorLogin}
@@ -39,8 +41,9 @@
 		<h1 id="bienvenida">Matchs, classement et tournois</h1>
 		<p class="texto-suave">Connecte-toi avec ton compte Google pour voir ton profil.</p>
 	</section>
-	<form method="POST" action="/auth/login">
-		<Boton type="submit">Se connecter avec Google</Boton>
+	<!-- Sin `enhance`: el navegador sale hacia Google. Mientras, el botón muestra que trabaja. -->
+	<form method="POST" action="/auth/login" onsubmit={() => (conectando = true)}>
+		<Boton type="submit" cargando={conectando}>Se connecter avec Google</Boton>
 	</form>
 {/if}
 

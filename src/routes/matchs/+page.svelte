@@ -2,6 +2,8 @@
 	import { enhance } from '$app/forms';
 	import { resolve } from '$app/paths';
 	import Boton from '#lib/componentes/Boton.svelte';
+	import { duracion } from '#lib/movimiento.ts';
+	import { fly } from 'svelte/transition';
 	import {
 		diaEnFrancia,
 		fechaCorta,
@@ -23,8 +25,9 @@
 		data.partidos.ok ? data.partidos.datos.filter((p) => !p.puedoResponder) : []
 	);
 
-	// Mientras se envía una respuesta, sus botones se desactivan (evita el doble clic).
-	let enviando = $state<number | null>(null);
+	// Mientras se envía una respuesta, sus botones se desactivan (evita el doble clic)
+	// y el botón pulsado muestra que trabaja. `submitter` es el botón que se pulsó.
+	let enviando = $state<{ partido: number; respuesta: string } | null>(null);
 </script>
 
 {#snippet tarjeta(partido: MiPartido)}
@@ -58,8 +61,11 @@
 				method="POST"
 				action="?/repondre"
 				class="respuesta"
-				use:enhance={() => {
-					enviando = partido.id;
+				use:enhance={({ submitter }) => {
+					enviando = {
+						partido: partido.id,
+						respuesta: submitter?.getAttribute('value') ?? ''
+					};
 					return async ({ update }) => {
 						await update();
 						enviando = null;
@@ -67,7 +73,13 @@
 				}}
 			>
 				<input type="hidden" name="partido" value={partido.id} />
-				<Boton type="submit" name="respuesta" value="confirmado" disabled={enviando === partido.id}>
+				<Boton
+					type="submit"
+					name="respuesta"
+					value="confirmado"
+					disabled={enviando?.partido === partido.id}
+					cargando={enviando?.partido === partido.id && enviando.respuesta === 'confirmado'}
+				>
 					Confirmer
 				</Boton>
 				<Boton
@@ -75,7 +87,8 @@
 					name="respuesta"
 					value="rechazado"
 					variante="secundario"
-					disabled={enviando === partido.id}
+					disabled={enviando?.partido === partido.id}
+					cargando={enviando?.partido === partido.id && enviando.respuesta === 'rechazado'}
 				>
 					Refuser
 				</Boton>
@@ -94,7 +107,7 @@
 </section>
 
 {#if data.recienRegistrado}
-	<p class="confirmacion" role="status">
+	<p class="confirmacion" role="status" in:fly={{ y: -8, duration: duracion(200) }}>
 		Match enregistré. Il attend la confirmation de ton adversaire.
 	</p>
 {/if}
@@ -102,7 +115,7 @@
 <a class="boton-enlace" href={resolve('/matchs/nouveau')}>Enregistrer un match</a>
 
 {#if form && 'respondido' in form}
-	<p class="confirmacion" role="status">
+	<p class="confirmacion" role="status" in:fly={{ y: -8, duration: duracion(200) }}>
 		{form.respondido === 'confirmado'
 			? 'Match confirmé.'
 			: 'Match refusé. Il ne compte pas dans les classements.'}

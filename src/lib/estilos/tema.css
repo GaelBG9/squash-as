@@ -105,6 +105,16 @@ textarea {
 	font: inherit;
 }
 
+/* En el móvil, un toque es un clic al momento (sin esperar a ver si es un doble toque). */
+a,
+button,
+label,
+input,
+select,
+textarea {
+	touch-action: manipulation;
+}
+
 :focus-visible {
 	outline: 3px solid var(--color-punto);
 	outline-offset: 2px;

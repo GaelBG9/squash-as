@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { fechaCorta } from '#lib/partidos.ts';
-	import type { FiltroGrupo } from '#lib/clasificacion.ts';
+	import { navigating } from '$app/state';
+	import { leerFiltroGrupo, type FiltroGrupo } from '#lib/clasificacion.ts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -13,6 +14,13 @@
 		{ texto: 'Groupe 1', grupo: 1 },
 		{ texto: 'Groupe 2', grupo: 2 }
 	];
+
+	// Mientras carga el filtro pulsado, ya se marca como elegido: respuesta inmediata.
+	const grupoMostrado = $derived(
+		navigating.to?.route.id === '/classement'
+			? leerFiltroGrupo(navigating.to.url.searchParams.get('groupe'))
+			: data.grupo
+	);
 </script>
 
 <svelte:head>
@@ -34,7 +42,7 @@
 			class="filtro"
 			name="groupe"
 			value={filtro.grupo ?? ''}
-			aria-pressed={data.grupo === filtro.grupo}
+			aria-pressed={grupoMostrado === filtro.grupo}
 		>
 			{filtro.texto}
 		</button>
@@ -108,6 +116,14 @@
 		font-weight: 600;
 		white-space: nowrap;
 		cursor: pointer;
+		transition:
+			background-color 0.15s,
+			color 0.15s,
+			transform 0.1s;
+	}
+
+	.filtro:active {
+		transform: scale(0.96);
 	}
 
 	.filtro[aria-pressed='true'] {

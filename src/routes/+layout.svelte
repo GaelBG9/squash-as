@@ -6,7 +6,10 @@
 	import '@fontsource/barlow-condensed/700.css';
 	import '#lib/estilos/tema.css';
 	import favicon from '#lib/assets/favicon.svg';
+	import BarraCarga from '#lib/componentes/BarraCarga.svelte';
 	import Cabecera from '#lib/componentes/Cabecera.svelte';
+	import { duracion } from '#lib/movimiento.ts';
+	import { fade } from 'svelte/transition';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import type { LayoutProps } from './$types';
@@ -22,13 +25,20 @@
 	<title>Squash AS</title>
 </svelte:head>
 
+<BarraCarga />
+
 <Cabecera {nombre} {conectado} rutaActual={page.url.pathname} />
 
 <main class="contenido">
 	{#if data.errorConfig}
 		<p class="aviso" role="alert">{data.errorConfig}</p>
 	{/if}
-	{@render children()}
+	<!-- `{#key}`: al cambiar de página, el contenido nuevo aparece con un fundido corto. -->
+	{#key page.url.pathname}
+		<div class="pagina" in:fade={{ duration: duracion(180) }}>
+			{@render children()}
+		</div>
+	{/key}
 </main>
 
 <!-- Google exige que la página principal enlace a la política de privacidad. -->
@@ -51,9 +61,13 @@
 		min-height: var(--altura-toque);
 	}
 
-	.contenido {
+	.contenido,
+	.pagina {
 		display: grid;
 		gap: var(--espacio-5);
+	}
+
+	.contenido {
 		max-width: var(--ancho-contenido);
 		margin: 0 auto;
 		padding: var(--espacio-5) var(--espacio-4) var(--espacio-6);

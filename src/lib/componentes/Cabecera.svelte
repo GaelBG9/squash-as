@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { duracion } from '#lib/movimiento.ts';
 	import { iniciales } from '#lib/navegacion.ts';
+	import { slide } from 'svelte/transition';
 	import Menu from './Menu.svelte';
 
 	type Props = {
@@ -52,7 +54,10 @@
 		</div>
 	</div>
 	{#if menuAbierto}
-		<Menu id="menu-principal" {rutaActual} {conectado} />
+		<!-- El menú se despliega hacia abajo en vez de aparecer de golpe. -->
+		<div transition:slide={{ duration: duracion(200) }}>
+			<Menu id="menu-principal" {rutaActual} {conectado} />
+		</div>
 	{/if}
 </header>
 
