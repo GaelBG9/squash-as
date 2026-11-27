@@ -90,6 +90,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - R12. Un partido tiene uno de tres formatos: libre (1 o 2 juegos sueltos, para los entrenamientos; un 1-1 es empate), al mejor de 3 (termina al ganar 2 juegos) o al mejor de 5 (termina al ganar 3). No se controla el tanteo de cada juego (no siempre se juega a 11), pero cada juego tiene un ganador.
 - R13. Solo uno de los dos jugadores puede registrar un partido; el otro es quien lo confirma o rechaza.
 - R14. Los ratings Glicko-2 de los dos jugadores se actualizan en cuanto se confirma el partido (cada partido cuenta como un periodo del algoritmo); una victoria cuenta 1, una derrota 0 y un empate 0,5. La incertidumbre (RD) de un jugador crece por cada semana sin jugar antes de su siguiente partido, sin pasar nunca de 350.
+- R15. La clasificación Glicko-2 es común a los dos grupos; se puede filtrar por grupo 1 o 2 (los puestos se cuentan entonces dentro del grupo, y los jugadores sin grupo solo salen en la lista completa). Cada jugador aparece con su incertidumbre (RD) de hoy, es decir, con las semanas sin jugar ya sumadas (R14).
 - Por definir: puntos por ronda en la clasificación de torneos, reglas de emparejamiento.
 
 ## 8. Criterios de aceptación
@@ -102,6 +103,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - Historia 3: un partido registrado el 1 de marzo y sin respuesta pasa a "confirmado" el 16 de marzo y los ratings se actualizan, sin enviar ningún aviso.
 - Historia 1: una cuenta Google nueva puede conectarse y registrar un partido sin intervención del administrador.
 - Historia 4: la clasificación lista a todos los jugadores con al menos un partido confirmado, ordenados por rating de mayor a menor.
+- Historia 4: con el filtro "Groupe 1", solo salen los jugadores del grupo 1, numerados desde 1; un jugador que no juega desde hace un año muestra un RD mayor que el guardado tras su último partido.
 - Historia 5: con 16 inscritos, el cuadro tiene 8 partidos en primera ronda y los cabezas de serie 1 y 2 solo pueden enfrentarse en la final.
 - Historia 7: un jugador con 3 partidos confirmados, 2 ganados, ve "2 victorias / 1 derrota - 67 %".
 - Historia 8: con un número par de jugadores presentes, cada uno recibe exactamente un rival.
@@ -147,4 +149,4 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 8. ¿Qué pasa si hay menos o más de 16 inscritos en un torneo?
 9. ¿Los partidos de torneo deben pesar más en Glicko-2 que los de entrenamiento?
 10. ~~¿Dónde se aloja el frontend (Vercel, Netlify, VPS)?~~ Respondida: Vercel (ver sección 9).
-11. ¿Los grupos 1 y 2 tienen clasificaciones separadas o una común?
+11. ~~¿Los grupos 1 y 2 tienen clasificaciones separadas o una común?~~ Respondida: una común con filtro por grupo (ver R15).

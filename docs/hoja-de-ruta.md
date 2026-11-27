@@ -38,7 +38,7 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Criterio: un partido registrado el 1 de marzo sin respuesta pasa a "confirmado" el 16 de marzo y los ratings de los dos jugadores cambian; nadie recibe ningún aviso.
       Nota: la restricción `respondido_si_no_pendiente` (tarea 1.2) obliga a rellenar `respondido_en` al cambiar el estado; decidir cómo distinguir una validación automática de una confirmación del rival.
       Nota: tras validar, llamar a `aplicar_glicko2(partido)` (tarea 1.3) para actualizar los ratings.
-- [ ] 1.5 Página de clasificación Glicko-2
+- [x] 1.5 Página de clasificación Glicko-2
       Criterio: lista a los jugadores con al menos un partido confirmado, ordenados por rating de mayor a menor.
       Nota: el RD guardado es el del último partido; el crecimiento por inactividad (R14) solo se aplica al jugar el siguiente. Si la clasificación debe mostrar el RD de hoy, calcularlo con `rd_tras_inactividad` al leer.
 

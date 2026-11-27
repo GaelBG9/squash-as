@@ -11,7 +11,8 @@ export type EntradaMenu = {
 /** Entradas del menú. Cada página nueva añade aquí la suya cuando existe. */
 export const MENU: readonly EntradaMenu[] = [
 	{ texto: 'Accueil', ruta: '/' },
-	{ texto: 'Mes matchs', ruta: '/matchs', soloConectados: true }
+	{ texto: 'Mes matchs', ruta: '/matchs', soloConectados: true },
+	{ texto: 'Classement', ruta: '/classement', soloConectados: true }
 ];
 
 /** Entradas que ve quien visita la app, según tenga sesión o no. */
