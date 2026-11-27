@@ -1,6 +1,6 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
-import type { User } from '@supabase/supabase-js';
+import type { UsuarioConectado } from '#lib/sesion.ts';
 import type { ClienteSupabase } from '#lib/supabase.ts';
 
 declare global {
@@ -11,8 +11,8 @@ declare global {
 			/** `null` si falta configurar Supabase en `.env`. */
 			supabase: ClienteSupabase | null;
 			errorConfig: string | null;
-			/** Usuario conectado (verificado con Supabase), o `null` si no hay sesión. */
-			obtenerUsuario: () => Promise<User | null>;
+			/** Usuario conectado (firma de la sesión verificada), o `null` si no hay sesión. */
+			obtenerUsuario: () => Promise<UsuarioConectado | null>;
 		}
 		// interface PageData {}
 		// interface PageState {}
