@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import Boton from '#lib/componentes/Boton.svelte';
 	import {
+		diaEnFrancia,
 		fechaCorta,
 		textoEstado,
 		textoFormato,
@@ -30,7 +31,9 @@
 	<li class="tarjeta partido">
 		<div class="linea">
 			<span class="rival">contre {partido.rival}</span>
-			<span class={['estado', partido.estado]}>{textoEstado(partido.estado)}</span>
+			<span class={['estado', partido.estado]}>
+				{textoEstado(partido.estado, partido.validadoAutomaticamente)}
+			</span>
 		</div>
 		<p class="marcador">
 			<span class={['resultado', partido.resultado]}>{textoResultado(partido.resultado)}</span>
@@ -40,6 +43,13 @@
 			{fechaCorta(partido.fecha)} · {textoFormato(partido.formato)}
 			{#if !partido.registradoPorMi}· enregistré par {partido.rival}{/if}
 		</p>
+		{#if partido.validacionAutomaticaEl}
+			<!-- R8: sin respuesta en 15 días, el partido se confirma solo. -->
+			<p class="detalle">
+				{partido.puedoResponder ? 'Sans réponse de ta part' : 'Sans réponse de ton adversaire'}, il
+				sera confirmé automatiquement le {diaEnFrancia(partido.validacionAutomaticaEl)}.
+			</p>
+		{/if}
 		{#if partido.puedoResponder}
 			{#if form && 'error' in form && form.partido === partido.id}
 				<p class="aviso" role="alert">{form.error}</p>

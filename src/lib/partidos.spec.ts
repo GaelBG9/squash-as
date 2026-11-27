@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
 	desdeMiPunto,
+	diaEnFrancia,
 	fechaCorta,
+	fechaValidacionAutomatica,
 	leerMisPartidos,
 	leerRivales,
 	esRespuesta,
@@ -163,6 +165,7 @@ function fila(cambios: Partial<FilaPartido> = {}): FilaPartido {
 		registrado_por: ID_YO,
 		registrado_en: '2026-11-27T18:00:00Z',
 		respondido_en: null,
+		validado_automaticamente: false,
 		// Desordenados a propósito: se ordenan por número.
 		juegos: [
 			{ numero: 3, puntos_a: 11, puntos_b: 5 },
@@ -192,7 +195,10 @@ describe('desdeMiPunto', () => {
 				{ a: 11, b: 8 }
 			],
 			registradoPorMi: true,
-			puedoResponder: false
+			puedoResponder: false,
+			validadoAutomaticamente: false,
+			// Registrado el 27 nov. a las 18:00 UTC: se valida solo 15 días después.
+			validacionAutomaticaEl: '2026-12-12T18:00:00.000Z'
 		});
 	});
 
@@ -216,6 +222,28 @@ describe('desdeMiPunto', () => {
 		for (const estado of ['confirmado', 'rechazado'] as const) {
 			const respondido = fila({ estado, respondido_en: '2026-11-28T10:00:00Z' });
 			expect(desdeMiPunto(respondido, ID_RIVAL).puedoResponder).toBe(false);
+		}
+	});
+
+	it('criterio de la 1.4: un partido validado solo se marca como automático', () => {
+		const automatico = fila({
+			estado: 'confirmado',
+			respondido_en: '2026-12-12T19:00:00Z',
+			validado_automaticamente: true
+		});
+		const visto = desdeMiPunto(automatico, ID_RIVAL);
+		expect(visto.validadoAutomaticamente).toBe(true);
+		expect(visto.puedoResponder).toBe(false);
+		expect(visto.validacionAutomaticaEl).toBeNull();
+		expect(textoEstado(visto.estado, visto.validadoAutomaticamente)).toBe(
+			'Confirmé automatiquement'
+		);
+	});
+
+	it('solo un partido pendiente tiene fecha de validación automática', () => {
+		for (const estado of ['confirmado', 'rechazado'] as const) {
+			const respondido = fila({ estado, respondido_en: '2026-11-28T10:00:00Z' });
+			expect(desdeMiPunto(respondido, ID_YO).validacionAutomaticaEl).toBeNull();
 		}
 	});
 
@@ -272,6 +300,13 @@ describe('textos de los partidos', () => {
 		expect(textoEstado('rechazado')).toBe('Refusé');
 	});
 
+	it('"automático" solo cambia el texto de un partido confirmado', () => {
+		expect(textoEstado('confirmado', false)).toBe('Confirmé');
+		expect(textoEstado('confirmado', true)).toBe('Confirmé automatiquement');
+		// No debería pasar (la base de datos lo impide), pero no mentimos.
+		expect(textoEstado('pendiente', true)).toBe('En attente de confirmation');
+	});
+
 	it('marcador del criterio', () => {
 		const juegos = [
 			{ a: 11, b: 7 },
@@ -287,5 +322,25 @@ describe('textos de los partidos', () => {
 		expect(textoFormato('mejor_de_3')).toBe('Au meilleur des 3 jeux');
 		expect(textoResultado('empate')).toBe('Égalité');
 		expect(fechaCorta('2026-11-27')).toBe('27 nov. 2026');
+	});
+});
+
+describe('validación automática (R8)', () => {
+	it('criterio de la 1.4: registrado el 1 de marzo → se valida el 16 de marzo', () => {
+		// 10:00 en París = 9:00 UTC (hora de invierno).
+		const limite = fechaValidacionAutomatica('2026-03-01T09:00:00Z');
+		expect(limite.toISOString()).toBe('2026-03-16T09:00:00.000Z');
+		expect(diaEnFrancia(limite.toISOString())).toBe('16 mars 2026');
+	});
+
+	it('acepta el formato de fecha que devuelve Supabase (+00:00)', () => {
+		expect(fechaValidacionAutomatica('2026-11-27T18:00:00.123456+00:00').toISOString()).toBe(
+			'2026-12-12T18:00:00.123Z'
+		);
+	});
+
+	it('el día se cuenta en la hora de Francia, no en UTC', () => {
+		// 23:30 UTC del 15 de marzo = 0:30 del 16 en París.
+		expect(diaEnFrancia('2026-03-15T23:30:00Z')).toBe('16 mars 2026');
 	});
 });
