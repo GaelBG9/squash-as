@@ -35,6 +35,14 @@ export async function leerPerfil(
 	}
 }
 
+/**
+ * ¿Es el administrador? Solo sirve para enseñar u ocultar botones y páginas:
+ * quien protege los datos es la base de datos, que vuelve a comprobarlo con `es_admin()`.
+ */
+export function esAdmin(perfil: EstadoPerfil): boolean {
+	return perfil.estado === 'conectado' && perfil.jugador.rol === 'admin';
+}
+
 /** Texto para mostrar el grupo, que puede no estar asignado todavía. */
 export function textoGrupo(grupo: DatosPerfil['grupo']): string {
 	return grupo === null

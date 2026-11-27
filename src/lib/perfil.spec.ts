@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { leerPerfil, textoGrupo, textoNivel, textoRol, type DatosPerfil } from './perfil.ts';
+import {
+	esAdmin,
+	leerPerfil,
+	textoGrupo,
+	textoNivel,
+	textoRol,
+	type DatosPerfil
+} from './perfil.ts';
 import type { ClienteSupabase } from './supabase.ts';
 
 type Respuesta = { data: DatosPerfil | null; error: { message: string } | null };
@@ -87,5 +94,23 @@ describe('textos del perfil', () => {
 		expect(textoNivel(1500, 350)).toBe('1500 ± 350');
 		expect(textoNivel(1662.3108, 290.3189)).toBe('1662 ± 290');
 		expect(textoNivel(1337.5, 49.5)).toBe('1338 ± 50');
+	});
+});
+
+describe('esAdmin', () => {
+	const jugador: DatosPerfil = {
+		nombre: 'Prueba',
+		grupo: 1,
+		rol: 'jugador',
+		rating: 1500,
+		rd: 350
+	};
+
+	it('solo el administrador conectado', () => {
+		expect(esAdmin({ estado: 'conectado', jugador: { ...jugador, rol: 'admin' } })).toBe(true);
+		expect(esAdmin({ estado: 'conectado', jugador })).toBe(false);
+		expect(esAdmin({ estado: 'sin-sesion' })).toBe(false);
+		expect(esAdmin({ estado: 'sin-perfil' })).toBe(false);
+		expect(esAdmin({ estado: 'error', error: 'x' })).toBe(false);
 	});
 });

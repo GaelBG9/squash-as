@@ -115,3 +115,9 @@ Formato: fecha, decisión, alternativas consideradas, por qué.
 - **Decisión**: `vercel.json` fija `"regions": ["dub1"]` (Dublín), la región de Vercel más cercana al proyecto Supabase (`eu-west-1`, Irlanda).
 - **Alternativas**: elegir la región en el panel de Vercel (Settings → Functions); exportar `config = { regions: [...] }` desde SvelteKit (pide cambiar `adapter-auto` por `adapter-vercel`); dejar Washington, la región por defecto.
 - **Por qué**: cada página hace varias consultas a Supabase una tras otra; desde Washington cada una cruza el Atlántico, y desde Dublín se quedan en la misma ciudad. Un archivo en el repo queda versionado y revisado en la PR, cosa que no pasa con un ajuste del panel, y no añade dependencias. Para un jugador en Francia, Dublín también está más cerca que Washington.
+
+## 2026-11-27 - Torneos: escritura solo con funciones de admin y temporada calculada
+
+- **Decisión**: `torneos` e `inscripciones` solo se leen desde la app; para escribir están `crear_torneo`, `inscribir_jugador` y `desinscribir_jugador` (`security definer`), que comprueban `es_admin()`. `inscribir_jugador` bloquea la fila del torneo (`for update`) antes de contar los inscritos. La temporada es una columna generada a partir de la fecha (R25). Las páginas saben si eres admin con `parent()`, que reutiliza el perfil ya leído por el layout.
+- **Alternativas**: políticas RLS de `insert`/`delete` para el admin; contar los 16 con un trigger; escribir la temporada a mano; volver a leer el perfil en cada página.
+- **Por qué**: es el mismo modelo que los partidos (una sola puerta de entrada, mensajes de error en francés). Sin el bloqueo, dos inscripciones simultáneas con 15 inscritos podrían contar 15 las dos y dejar 17. Una columna generada no se puede escribir, así que nunca hay temporadas mal escritas. Ocultar los botones en la interfaz no protege nada: quien protege es la base de datos, y la interfaz solo evita enseñar lo que no se puede usar.
