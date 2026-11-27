@@ -10,7 +10,7 @@ import {
 } from './privacidad.ts';
 
 describe('datos declarados en la política de privacidad', () => {
-	it('explica todas las columnas de jugadores, jugadores_privado, partidos y juegos', () => {
+	it('explica todas las columnas de jugadores, jugadores_privado, partidos, juegos e historial_rating', () => {
 		expect(columnasSinExplicar()).toEqual([]);
 	});
 

@@ -1,4 +1,4 @@
-import type { DatosPrivados, Jugador } from './jugadores.ts';
+import type { DatosPrivados, HistorialRating, Jugador } from './jugadores.ts';
 import type { JuegoGuardado, Partido } from './partidos.ts';
 
 /** Email publicado en la política para pedir acceso, corrección o borrado de los datos. */
@@ -49,7 +49,17 @@ export const COLUMNAS_GUARDADAS = {
 		numero: true,
 		puntos_a: true,
 		puntos_b: true
-	} satisfies Record<keyof JuegoGuardado, true>
+	} satisfies Record<keyof JuegoGuardado, true>,
+	/** Visible para todos los jugadores conectados (tarea 1.3). */
+	historial_rating: {
+		id: true,
+		jugador: true,
+		partido: true,
+		fecha: true,
+		rating: true,
+		rd: true,
+		volatilidad: true
+	} satisfies Record<keyof HistorialRating, true>
 } as const;
 
 /** Tablas que solo ven el propio jugador y el admin (R11); las demás, todos los conectados. */
@@ -126,6 +136,19 @@ export const DATOS_GUARDADOS: readonly DatoGuardado[] = [
 		dato: 'Date de la réponse à un match (confirmation ou refus)',
 		para: 'Savoir quand ton adversaire a répondu, pour vérifier un résultat en cas de doute.',
 		columnas: ['partidos.respondido_en']
+	},
+	{
+		dato: 'Historique de ton niveau Glicko-2 après chaque match confirmé',
+		para: 'Montrer l’évolution de ton niveau et savoir quel match l’a fait changer.',
+		columnas: [
+			'historial_rating.id',
+			'historial_rating.jugador',
+			'historial_rating.partido',
+			'historial_rating.fecha',
+			'historial_rating.rating',
+			'historial_rating.rd',
+			'historial_rating.volatilidad'
+		]
 	}
 ];
 
