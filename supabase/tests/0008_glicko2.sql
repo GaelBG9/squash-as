@@ -67,8 +67,15 @@ begin
 		raise exception 'FALLO test 4: RD tras un año sin jugar = %',
 			public.rd_tras_inactividad(50, 0.06, current_date - 371, current_date);
 	end if;
-	if public.rd_tras_inactividad(340, 0.06, current_date - 371, current_date) <> 350 then
-		raise exception 'FALLO test 4: el RD ha pasado de 350 por inactividad';
+	-- Cerca del tope: 340 tras un año -> 348,21 (todavía por debajo de 350)...
+	if abs(public.rd_tras_inactividad(340, 0.06, current_date - 371, current_date) - 348.21) > 0.01 then
+		raise exception 'FALLO test 4: RD 340 tras un año sin jugar = %',
+			public.rd_tras_inactividad(340, 0.06, current_date - 371, current_date);
+	end if;
+	-- ...y tras dos años (742 días) sería 356,38: se queda en 350.
+	if public.rd_tras_inactividad(340, 0.06, current_date - 742, current_date) <> 350 then
+		raise exception 'FALLO test 4: el RD ha pasado de 350 por inactividad (%)',
+			public.rd_tras_inactividad(340, 0.06, current_date - 742, current_date);
 	end if;
 	-- Un partido con fecha anterior al último contado no reduce el RD
 	if public.rd_tras_inactividad(50, 0.06, current_date, current_date - 30) <> 50 then
