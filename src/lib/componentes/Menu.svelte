@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { MENU, esRutaActual } from '#lib/navegacion.ts';
+	import { entradasMenu, esRutaActual } from '#lib/navegacion.ts';
 	import Boton from './Boton.svelte';
 
 	type Props = {
@@ -15,7 +15,7 @@
 
 <nav {id} class="menu" aria-label="Menu principal">
 	<ul>
-		{#each MENU as entrada (entrada.ruta)}
+		{#each entradasMenu(conectado) as entrada (entrada.ruta)}
 			<li>
 				<a
 					href={resolve(entrada.ruta)}
