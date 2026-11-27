@@ -41,7 +41,8 @@ export const COLUMNAS_GUARDADAS = {
 		estado: true,
 		registrado_por: true,
 		registrado_en: true,
-		respondido_en: true
+		respondido_en: true,
+		validado_automaticamente: true
 	} satisfies Record<keyof Partido, true>,
 	/** Visible para todos los jugadores conectados (tarea 1.1). */
 	juegos: {
@@ -133,9 +134,9 @@ export const DATOS_GUARDADOS: readonly DatoGuardado[] = [
 		columnas: ['partidos.registrado_por', 'partidos.registrado_en']
 	},
 	{
-		dato: 'Date de la réponse à un match (confirmation ou refus)',
-		para: 'Savoir quand ton adversaire a répondu, pour vérifier un résultat en cas de doute.',
-		columnas: ['partidos.respondido_en']
+		dato: 'Date de la réponse à un match (confirmation ou refus), et si le match a été confirmé automatiquement après 15 jours sans réponse',
+		para: 'Savoir quand et comment un match a été confirmé, pour vérifier un résultat en cas de doute.',
+		columnas: ['partidos.respondido_en', 'partidos.validado_automaticamente']
 	},
 	{
 		dato: 'Historique de ton niveau Glicko-2 après chaque match confirmé',

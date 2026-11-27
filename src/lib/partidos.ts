@@ -20,9 +20,23 @@ export type Partido = {
 	estado: EstadoPartido;
 	registrado_por: string;
 	registrado_en: string;
-	/** Cuándo respondió el rival; `null` mientras está pendiente. */
+	/** Cuándo respondió el rival (o se validó solo); `null` mientras está pendiente. */
 	respondido_en: string | null;
+	/** Confirmado sin respuesta del rival a los 15 días (R8, tarea 1.4). */
+	validado_automaticamente: boolean;
 };
+
+/** Días sin respuesta tras los que un partido se confirma solo (R8). */
+export const DIAS_VALIDACION_AUTOMATICA = 15;
+
+/**
+ * Cuándo se valida solo un partido pendiente: 15 días después de su registro.
+ * La base de datos lo comprueba cada hora (supabase/sql/0009_validacion_automatica.sql),
+ * así que puede pasar hasta una hora más tarde.
+ */
+export function fechaValidacionAutomatica(registradoEn: string): Date {
+	return new Date(Date.parse(registradoEn) + DIAS_VALIDACION_AUTOMATICA * 24 * 60 * 60 * 1000);
+}
 
 /** Fila de la tabla `juegos`. */
 export type JuegoGuardado = { partido: number; numero: number; puntos_a: number; puntos_b: number };
@@ -128,6 +142,10 @@ export type MiPartido = {
 	registradoPorMi: boolean;
 	/** Puedo confirmarlo o rechazarlo: está pendiente y soy el rival (R2, R13). */
 	puedoResponder: boolean;
+	/** Confirmado solo, sin respuesta del rival (R8). */
+	validadoAutomaticamente: boolean;
+	/** Si está pendiente: cuándo se validará solo (ISO). Si no, `null`. */
+	validacionAutomaticaEl: string | null;
 };
 
 /** Pasa una fila de la base de datos a mi punto de vista. */
@@ -153,7 +171,12 @@ export function desdeMiPunto(fila: FilaPartido, idUsuario: string): MiPartido {
 		puedoResponder:
 			fila.estado === 'pendiente' &&
 			fila.jugador_b === idUsuario &&
-			fila.registrado_por !== idUsuario
+			fila.registrado_por !== idUsuario,
+		validadoAutomaticamente: fila.validado_automaticamente,
+		validacionAutomaticaEl:
+			fila.estado === 'pendiente'
+				? fechaValidacionAutomatica(fila.registrado_en).toISOString()
+				: null
 	};
 }
 
@@ -183,7 +206,8 @@ export async function leerMisPartidos(
 	}
 }
 
-export function textoEstado(estado: EstadoPartido): string {
+export function textoEstado(estado: EstadoPartido, automatico = false): string {
+	if (estado === 'confirmado' && automatico) return 'Confirmé automatiquement';
 	const textos: Record<EstadoPartido, string> = {
 		pendiente: 'En attente de confirmation',
 		confirmado: 'Confirmé',
@@ -225,5 +249,15 @@ export function fechaCorta(fecha: string): string {
 		month: 'short',
 		year: 'numeric',
 		timeZone: 'UTC'
+	});
+}
+
+/** Un instante (ISO) → "16 mars 2026", en la hora de Francia. */
+export function diaEnFrancia(instante: string): string {
+	return new Date(instante).toLocaleDateString('fr', {
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+		timeZone: 'Europe/Paris'
 	});
 }

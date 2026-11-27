@@ -19,6 +19,7 @@ const PENDIENTE: FilaPartido = {
 	registrado_por: ID_YO,
 	registrado_en: '2026-11-20T18:00:00Z',
 	respondido_en: null,
+	validado_automaticamente: false,
 	juegos: [
 		{ numero: 1, puntos_a: 11, puntos_b: 7 },
 		{ numero: 2, puntos_a: 9, puntos_b: 11 },
