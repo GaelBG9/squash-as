@@ -48,16 +48,34 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Nota: Vercel usa Washington (EE. UU.) por defecto; Supabase está en eu-west-1 (Irlanda), así que `vercel.json` fija `dub1` (Dublín).
       Nota: comprobar en Supabase (Authentication → JWT Keys / Signing Keys) si el proyecto usa claves asimétricas; si no, `getClaims()` sigue preguntando a Supabase en cada petición.
 
-## Fase 2 - V2 (se detallará al terminar el MVP)
+## Fase 2 - V2
 
-- [ ] 2.1 Crear torneo y generar cuadro de 16 con cabezas de serie
+- [ ] 2.1 Crear un torneo e inscribir jugadores (admin)
+      Criterio: el admin crea "Open de printemps" (fecha, temporada) e inscribe a 12 jugadores; un jugador que no es admin no ve el botón "Créer un tournoi"; no se puede inscribir a un 17.º jugador ni dos veces al mismo (R5, R17).
+- [ ] 2.2 Generar el cuadro principal con cabezas de serie y exentos
+      Criterio: con 16 inscritos hay 8 partidos en primera ronda y los cabezas 1 y 2 solo pueden enfrentarse en la final; con 12 inscritos, los cabezas 1 a 4 están exentos y pasan solos a segunda ronda (4 partidos en primera ronda); los cabezas siguen el orden del rating Glicko-2 del día de la generación (R16, R18).
       Nota: añadir a `partidos` la columna del torneo y permitir registrar partidos de tipo torneo (en la 1.1 solo hay entrenamientos).
-- [ ] 2.2 Clasificación general de torneos
-- [ ] 2.3 Estadísticas por jugador
-- [ ] 2.4 Emparejamiento automático de los jueves
-- [ ] 2.5 Desactivar o eliminar cuentas (admin)
-      Nota: hoy la base de datos impide borrar a un jugador que tiene partidos (para no perder el historial del rival); decidir qué hacer con ellos.
+- [ ] 2.3 Registrar partidos de torneo y avanzar en el cuadro
+      Criterio: al confirmarse un partido de torneo, el ganador aparece en su plaza de la ronda siguiente; solo se puede registrar el partido de dos jugadores que se enfrentan en el cuadro; el formato es al mejor de 3 o de 5 (no libre) y el partido cuenta para Glicko-2 (R3, R19).
+- [ ] 2.4 Cuadro de consolación (plate)
+      Criterio: los perdedores de primera ronda del cuadro principal entran en el cuadro de consolación (8 con 16 inscritos; un exento no entra); sus partidos cuentan para Glicko-2 pero no dan puntos en la clasificación general (R20).
+- [ ] 2.5 Clasificación general de torneos
+      Criterio: un jugador campeón de un torneo y semifinalista de otro de la misma temporada tiene 150 puntos; solo cuentan los torneos de la temporada elegida; los partidos de entrenamiento no suman nada (R4, R21).
+- [ ] 2.6 Estadísticas por jugador
+      Criterio: un jugador con 3 partidos confirmados, 2 ganados, ve "2 victoires / 1 défaite - 67 %", además de juegos y puntos ganados/perdidos; los partidos pendientes o rechazados no cuentan (R1).
+- [ ] 2.7 Emparejamiento automático de los jueves (admin)
+      Criterio: el admin marca a los presentes y genera los partidos: cada jugador recibe exactamente un rival de su mismo grupo, con el rating más cercano posible; si un grupo es impar, un jugador de ese grupo elegido al azar descansa (R22).
+      Nota: la lista de presentes no se guarda tras generar los partidos (el control de asistencia está excluido, sección 3 del cahier).
+- [ ] 2.8 Arbitraje en directo: marcador punto a punto
+      Criterio: cualquier jugador conectado abre un marcador para dos jugadores y un formato, apunta cada punto y puede deshacer el último; con 10-10 el juego no termina con 11-10 sino con 12-10; al terminar el partido se registra como "pendiente" con todos sus juegos y sigue el circuito normal de confirmación; si arbitra un tercero, cualquiera de los dos jugadores puede confirmarlo o rechazarlo (R23).
+      Nota: el marcador vive solo en el móvil del árbitro (nadie más lo ve en directo); decidir al empezar si se guarda en el navegador para no perderlo al recargar la página.
+- [ ] 2.9 Anular un partido confirmado (admin)
+      Criterio: el admin anula un partido confirmado, que pasa a "anulado"; los ratings de los dos jugadores y de todos sus rivales posteriores quedan como si ese partido no se hubiera jugado (R24).
+      Nota: anular un partido cambia los ratings de los partidos que vinieron después; lo más simple y seguro es recalcular todo el historial Glicko-2 en orden cronológico (con unas decenas de jugadores es rápido).
+- [ ] 2.10 Desactivar o eliminar cuentas (admin)
+      Nota: hoy la base de datos impide borrar a un jugador que tiene partidos (para no perder el historial del rival); decidir qué hacer con ellos antes de escribir el criterio.
 
 ## Futuro
 
-- Arbitraje en directo, guía let / no let / stroke, planificador de clases.
+- Guía let / no let / stroke, planificador de clases.
+- Ver el marcador de un partido arbitrado en directo desde otro móvil (Supabase Realtime).
