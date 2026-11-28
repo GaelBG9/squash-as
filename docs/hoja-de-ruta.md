@@ -53,11 +53,12 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
 - [x] 2.1 Crear un torneo e inscribir jugadores (admin)
       Criterio: el admin crea "Open de printemps" (fecha, temporada) e inscribe a 12 jugadores; un jugador que no es admin no ve el botón "Créer un tournoi"; no se puede inscribir a un 17.º jugador ni dos veces al mismo; la temporada se calcula a partir de la fecha (R5, R17, R25).
       Nota: el SQL está en `supabase/sql/0010_torneos.sql` y sus tests en `supabase/tests/0010_torneos.sql`.
-- [ ] 2.2 Generar el cuadro principal con cabezas de serie y exentos
+- [x] 2.2 Generar el cuadro principal con cabezas de serie y exentos
       Criterio: con 16 inscritos hay 8 partidos en primera ronda y los cabezas 1 y 2 solo pueden enfrentarse en la final; con 12 inscritos, los cabezas 1 a 4 están exentos y pasan solos a segunda ronda (4 partidos en primera ronda); los cabezas siguen el orden del rating Glicko-2 del día de la generación (R16, R18).
-      Nota: añadir a `partidos` la columna del torneo y permitir registrar partidos de tipo torneo (en la 1.1 solo hay entrenamientos).
+      Nota: el SQL está en `supabase/sql/0011_cuadros.sql` y sus tests en `supabase/tests/0011_cuadros.sql`. Empate de rating: menor RD y después nombre; mínimo 2 inscritos; el admin puede borrar el cuadro mientras no haya partidos (R26).
 - [ ] 2.3 Registrar partidos de torneo y avanzar en el cuadro
       Criterio: al confirmarse un partido de torneo, el ganador aparece en su plaza de la ronda siguiente; solo se puede registrar el partido de dos jugadores que se enfrentan en el cuadro; el formato es al mejor de 3 o de 5 (no libre) y el partido cuenta para Glicko-2 (R3, R19).
+      Nota: `partidos.torneo` ya existe (tarea 2.2); falta permitir registrar partidos de tipo torneo (en la 1.1 solo hay entrenamientos). El ganador del cruce de las posiciones 2p-1 y 2p de la ronda r va a la posición p de la ronda r+1 (una fila nueva en `cuadros`); falta decidir cómo se guarda al campeón.
 - [ ] 2.4 Cuadro de consolación (plate)
       Criterio: los perdedores de primera ronda del cuadro principal entran en el cuadro de consolación (8 con 16 inscritos; un exento no entra); sus partidos cuentan para Glicko-2 pero no dan puntos en la clasificación general (R20).
 - [ ] 2.5 Clasificación general de torneos

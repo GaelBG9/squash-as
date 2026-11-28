@@ -22,13 +22,18 @@ function perfil(rol: 'jugador' | 'admin'): EstadoPerfil {
 	};
 }
 
+/** Un cuadro ya generado: basta una plaza para saber que existe. */
+const PLAZAS_GENERADAS = [{ ronda: 1, posicion: 1, jugador: BEA }];
+
 /**
- * Cliente falso: la consulta a `torneos` devuelve `filaTorneo` y la de `jugadores`,
- * Ana y Bea. Apunta las tablas consultadas y las llamadas a `rpc`.
+ * Cliente falso: la consulta a `torneos` devuelve `filaTorneo`, la de `cuadros`
+ * devuelve `plazas` y la de `jugadores`, Ana y Bea. Apunta las tablas consultadas
+ * y las llamadas a `rpc`.
  */
 function clienteFalso(
 	filaTorneo: unknown = FILA_TORNEO,
-	respuestaRpc: { data: unknown; error: { message: string } | null } = { data: null, error: null }
+	respuestaRpc: { data: unknown; error: { message: string } | null } = { data: null, error: null },
+	plazas: unknown[] = []
 ) {
 	const tablas: string[] = [];
 	const llamadasRpc: unknown[][] = [];
@@ -40,8 +45,10 @@ function clienteFalso(
 		tablas.push(tabla);
 		return consulta;
 	};
-	consulta.overrideTypes = () =>
-		Promise.resolve({ data: tabla === 'torneos' ? filaTorneo : [ANA, BEA], error: null });
+	consulta.overrideTypes = () => {
+		const datos = tabla === 'torneos' ? filaTorneo : tabla === 'cuadros' ? plazas : [ANA, BEA];
+		return Promise.resolve({ data: datos, error: null });
+	};
 	consulta.rpc = (...argumentos) => {
 		llamadasRpc.push(argumentos);
 		return Promise.resolve(respuestaRpc);
@@ -76,7 +83,7 @@ describe('load de un torneo', () => {
 			inscribibles: null,
 			recienCreado: false
 		});
-		expect(falso.tablas).toEqual(['torneos']);
+		expect(falso.tablas.sort()).toEqual(['cuadros', 'torneos']);
 	});
 
 	it('el admin ve a quién puede inscribir: todos menos los ya inscritos', async () => {
@@ -85,6 +92,16 @@ describe('load de un torneo', () => {
 			inscribibles: { ok: true, datos: [ANA] },
 			recienCreado: true
 		});
+	});
+
+	it('con el cuadro generado, el admin ya no recibe la lista para inscribir (R17)', async () => {
+		const falso = clienteFalso(FILA_TORNEO, undefined, PLAZAS_GENERADAS);
+		expect(await cargar('1', perfil('admin'), falso)).toMatchObject({
+			cuadro: { ok: true, datos: PLAZAS_GENERADAS },
+			esAdmin: true,
+			inscribibles: null
+		});
+		expect(falso.tablas).not.toContain('jugadores');
 	});
 
 	it('torneo que no existe → 404', async () => {
@@ -101,7 +118,7 @@ describe('load de un torneo', () => {
 });
 
 function enviar(
-	accion: 'inscrire' | 'desinscrire',
+	accion: keyof typeof actions,
 	campos: Record<string, string>,
 	falso = clienteFalso(),
 	id = '1'
@@ -162,5 +179,62 @@ describe('actions inscrire / desinscrire', () => {
 		await expect(enviar('inscrire', { jugador: 'a' }, clienteFalso(), 'abc')).rejects.toMatchObject(
 			{ status: 404 }
 		);
+	});
+});
+
+describe('actions generer / supprimer (tarea 2.2)', () => {
+	it('generar llama a generar_cuadro', async () => {
+		const falso = clienteFalso();
+		expect(await enviar('generer', {}, falso)).toEqual({ accion: 'generar', hecho: true });
+		expect(falso.llamadasRpc).toEqual([['generar_cuadro', { p_torneo: 1 }]]);
+	});
+
+	it('borrar llama a borrar_cuadro', async () => {
+		const falso = clienteFalso();
+		expect(await enviar('supprimer', {}, falso)).toEqual({ accion: 'borrar', hecho: true });
+		expect(falso.llamadasRpc).toEqual([['borrar_cuadro', { p_torneo: 1 }]]);
+	});
+
+	it('un jugador que no es admin recibe el rechazo de la base de datos', async () => {
+		const falso = clienteFalso(FILA_TORNEO, {
+			data: null,
+			error: { message: 'Seul l’administrateur peut générer le tableau.' }
+		});
+		expect(await enviar('generer', {}, falso)).toMatchObject({
+			status: 400,
+			data: {
+				accion: 'generar',
+				error: 'Impossible de générer le tableau : Seul l’administrateur peut générer le tableau.'
+			}
+		});
+	});
+
+	it('borrar con partidos registrados: mensaje de la base de datos', async () => {
+		const mensaje =
+			'Des matchs du tournoi sont déjà enregistrés : le tableau ne peut plus être supprimé.';
+		const falso = clienteFalso(FILA_TORNEO, { data: null, error: { message: mensaje } });
+		expect(await enviar('supprimer', {}, falso)).toMatchObject({
+			status: 400,
+			data: { error: `Impossible de supprimer le tableau : ${mensaje}` }
+		});
+	});
+
+	it('sin sesión → vuelta al inicio', async () => {
+		const falso = clienteFalso();
+		const evento = {
+			params: { id: '1' },
+			request: new Request('http://localhost/tournois/1?/generer', { method: 'POST' }),
+			locals: locals(falso.cliente, false)
+		};
+		await expect(
+			actions.generer(evento as unknown as Parameters<(typeof actions)['generer']>[0])
+		).rejects.toMatchObject({ status: 303, location: '/' });
+		expect(falso.llamadasRpc).toEqual([]);
+	});
+
+	it('id de torneo no válido → 404', async () => {
+		await expect(enviar('generer', {}, clienteFalso(), 'abc')).rejects.toMatchObject({
+			status: 404
+		});
 	});
 });
