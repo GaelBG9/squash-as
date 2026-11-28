@@ -2,8 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { MENU, entradasMenu, esRutaActual, iniciales } from './navegacion.ts';
 
 describe('MENU', () => {
-	it('con sesión: inicio, mis partidos y clasificación', () => {
-		expect(entradasMenu(true).map((e) => e.ruta)).toEqual(['/', '/matchs', '/classement']);
+	it('con sesión: inicio, mis partidos, clasificación y torneos', () => {
+		expect(entradasMenu(true).map((e) => e.ruta)).toEqual([
+			'/',
+			'/matchs',
+			'/classement',
+			'/tournois'
+		]);
 	});
 
 	it('sin sesión no enseña páginas que necesitan sesión', () => {

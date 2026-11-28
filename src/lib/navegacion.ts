@@ -1,9 +1,14 @@
 import type { RouteId } from '$app/types';
 
-/** `RouteId` solo admite rutas que existen en `src/routes`: un enlace roto no compila. */
+/**
+ * `RouteId` solo admite rutas que existen en `src/routes`: un enlace roto no compila.
+ * Se quitan las rutas con parámetros (`/tournois/[id]`): el menú no sabría qué id poner.
+ */
+type RutaFija = Exclude<RouteId, `${string}[${string}`>;
+
 export type EntradaMenu = {
 	texto: string;
-	ruta: RouteId;
+	ruta: RutaFija;
 	/** La página necesita sesión: sin ella, la entrada no se muestra. */
 	soloConectados?: true;
 };
@@ -12,7 +17,8 @@ export type EntradaMenu = {
 export const MENU: readonly EntradaMenu[] = [
 	{ texto: 'Accueil', ruta: '/' },
 	{ texto: 'Mes matchs', ruta: '/matchs', soloConectados: true },
-	{ texto: 'Classement', ruta: '/classement', soloConectados: true }
+	{ texto: 'Classement', ruta: '/classement', soloConectados: true },
+	{ texto: 'Tournois', ruta: '/tournois', soloConectados: true }
 ];
 
 /** Entradas que ve quien visita la app, según tenga sesión o no. */

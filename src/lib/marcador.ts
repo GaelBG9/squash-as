@@ -122,17 +122,20 @@ export function hoyEnFrancia(ahora: Date = new Date()): string {
 	return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(ahora);
 }
 
-/** Error si la fecha falta, no es válida o está en el futuro; si no, `null`. */
-export function errorFecha(fecha: string, hoy: string): string | null {
+/** ¿Es `fecha` un día que existe, escrito AAAA-MM-DD? */
+export function esFechaValida(fecha: string): boolean {
 	// JavaScript acepta "2026-02-31" (lo pasa al 3 de marzo): se comprueba que el día existe.
 	const dia = new Date(`${fecha}T12:00:00Z`);
-	if (
-		!/^\d{4}-\d{2}-\d{2}$/.test(fecha) ||
-		Number.isNaN(dia.getTime()) ||
-		dia.toISOString().slice(0, 10) !== fecha
-	) {
-		return 'Indique la date du match.';
-	}
+	return (
+		/^\d{4}-\d{2}-\d{2}$/.test(fecha) &&
+		!Number.isNaN(dia.getTime()) &&
+		dia.toISOString().slice(0, 10) === fecha
+	);
+}
+
+/** Error si la fecha falta, no es válida o está en el futuro; si no, `null`. */
+export function errorFecha(fecha: string, hoy: string): string | null {
+	if (!esFechaValida(fecha)) return 'Indique la date du match.';
 	// Mismo formato AAAA-MM-DD: comparar los textos es comparar las fechas.
 	if (fecha > hoy) return 'La date du match ne peut pas être dans le futur.';
 	return null;

@@ -50,8 +50,9 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
 
 ## Fase 2 - V2
 
-- [ ] 2.1 Crear un torneo e inscribir jugadores (admin)
-      Criterio: el admin crea "Open de printemps" (fecha, temporada) e inscribe a 12 jugadores; un jugador que no es admin no ve el botón "Créer un tournoi"; no se puede inscribir a un 17.º jugador ni dos veces al mismo (R5, R17).
+- [x] 2.1 Crear un torneo e inscribir jugadores (admin)
+      Criterio: el admin crea "Open de printemps" (fecha, temporada) e inscribe a 12 jugadores; un jugador que no es admin no ve el botón "Créer un tournoi"; no se puede inscribir a un 17.º jugador ni dos veces al mismo; la temporada se calcula a partir de la fecha (R5, R17, R25).
+      Nota: el SQL está en `supabase/sql/0010_torneos.sql` y sus tests en `supabase/tests/0010_torneos.sql`.
 - [ ] 2.2 Generar el cuadro principal con cabezas de serie y exentos
       Criterio: con 16 inscritos hay 8 partidos en primera ronda y los cabezas 1 y 2 solo pueden enfrentarse en la final; con 12 inscritos, los cabezas 1 a 4 están exentos y pasan solos a segunda ronda (4 partidos en primera ronda); los cabezas siguen el orden del rating Glicko-2 del día de la generación (R16, R18).
       Nota: añadir a `partidos` la columna del torneo y permitir registrar partidos de tipo torneo (en la 1.1 solo hay entrenamientos).
@@ -74,6 +75,8 @@ Cada tarea cabe en una conversación, es vertical (datos + lógica + tests + int
       Nota: anular un partido cambia los ratings de los partidos que vinieron después; lo más simple y seguro es recalcular todo el historial Glicko-2 en orden cronológico (con unas decenas de jugadores es rápido).
 - [ ] 2.10 Desactivar o eliminar cuentas (admin)
       Nota: hoy la base de datos impide borrar a un jugador que tiene partidos (para no perder el historial del rival); decidir qué hacer con ellos antes de escribir el criterio.
+- [ ] 2.11 Editar o borrar un torneo (admin)
+      Nota: apareció en la 2.1, que solo crea torneos. Decidir qué pasa con un torneo que ya tiene cuadro o partidos.
 
 ## Futuro
 

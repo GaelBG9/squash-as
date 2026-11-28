@@ -1,5 +1,6 @@
 import type { Formato, Juego } from './marcador.ts';
 import type { Jugador } from './jugadores.ts';
+import { errorDeRed, type Resultado } from './resultado.ts';
 import type { ClienteSupabase } from './supabase.ts';
 
 /** Estado de un partido: solo cuenta en las clasificaciones cuando está confirmado (R1). */
@@ -42,13 +43,6 @@ export function fechaValidacionAutomatica(registradoEn: string): Date {
 export type JuegoGuardado = { partido: number; numero: number; puntos_a: number; puntos_b: number };
 
 export type Rival = Pick<Jugador, 'id' | 'nombre'>;
-
-type Resultado<T> = { ok: true; datos: T } | { ok: false; error: string };
-
-function errorDeRed(e: unknown): string {
-	const detalle = e instanceof Error ? e.message : String(e);
-	return `Impossible de contacter Supabase : ${detalle}`;
-}
 
 /** Jugadores contra los que puedo registrar un partido: todos menos yo, por nombre. */
 export async function leerRivales(
