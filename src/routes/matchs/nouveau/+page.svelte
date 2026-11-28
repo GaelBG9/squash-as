@@ -13,7 +13,13 @@
 	// Si el servidor devuelve errores, el formulario conserva lo que se había escrito.
 	const valores = $derived<Record<string, string>>(form?.valores ?? {});
 	const errores = $derived(form?.errores ?? {});
-	const formatoInicial = $derived(valores.formato ?? 'libre');
+	// Partido de torneo (R19): rival fijado por el cuadro y nunca en formato libre.
+	const torneo = $derived(data.torneo?.ok ? data.torneo.datos : null);
+	const formatos = $derived(torneo ? FORMATOS.filter((f) => f !== 'libre') : FORMATOS);
+	const formatoInicial = $derived(valores.formato ?? (torneo ? 'mejor_de_3' : 'libre'));
+	const volverA = $derived(
+		torneo ? resolve('/tournois/[id]', { id: String(torneo.id) }) : resolve('/matchs')
+	);
 	const numerosJuego = Array.from({ length: maxJuegos('mejor_de_5') }, (_, i) => i + 1);
 
 	let enviando = $state(false);
@@ -24,16 +30,27 @@
 </svelte:head>
 
 <section class="bloque" aria-labelledby="titulo">
-	<p class="etiqueta">Matchs</p>
-	<h1 id="titulo">Enregistrer un match</h1>
-	<p class="texto-suave">
-		Ton adversaire devra le confirmer. En attendant, il ne compte pas dans le classement.
-	</p>
+	{#if torneo}
+		<p class="etiqueta">{torneo.nombre} · {torneo.ronda}</p>
+		<h1 id="titulo">Match de tournoi</h1>
+		<p class="texto-suave">
+			Ton adversaire devra le confirmer. Ensuite, le vainqueur passe au tour suivant.
+		</p>
+	{:else}
+		<p class="etiqueta">Matchs</p>
+		<h1 id="titulo">Enregistrer un match</h1>
+		<p class="texto-suave">
+			Ton adversaire devra le confirmer. En attendant, il ne compte pas dans le classement.
+		</p>
+	{/if}
 </section>
 
-{#if !data.rivales.ok}
+{#if data.torneo && !data.torneo.ok}
+	<p class="aviso" role="alert">{data.torneo.error}</p>
+	<a class="volver" href={resolve('/tournois')}>Voir les tournois</a>
+{:else if data.rivales && !data.rivales.ok}
 	<p class="aviso" role="alert">{data.rivales.error}</p>
-{:else if data.rivales.datos.length === 0}
+{:else if data.rivales && data.rivales.datos.length === 0}
 	<p class="aviso" role="alert">Il n’y a pas encore d’autres joueurs inscrits.</p>
 {:else}
 	<form
@@ -52,16 +69,25 @@
 			<p class="aviso" role="alert">{errores.general}</p>
 		{/if}
 
-		<Seleccion
-			id="rival"
-			name="rival"
-			etiqueta="Adversaire"
-			textoVacio="Choisis ton adversaire"
-			required
-			value={valores.rival ?? ''}
-			error={errores.rival}
-			opciones={data.rivales.datos.map((r) => ({ valor: r.id, texto: r.nombre }))}
-		/>
+		{#if torneo}
+			<input type="hidden" name="torneo" value={torneo.id} />
+			<input type="hidden" name="rival" value={torneo.rival.id} />
+			<div class="rival-fijo">
+				<span class="etiqueta-campo">Adversaire</span>
+				<span class="nombre-rival">{torneo.rival.nombre}</span>
+			</div>
+		{:else if data.rivales?.ok}
+			<Seleccion
+				id="rival"
+				name="rival"
+				etiqueta="Adversaire"
+				textoVacio="Choisis ton adversaire"
+				required
+				value={valores.rival ?? ''}
+				error={errores.rival}
+				opciones={data.rivales.datos.map((r) => ({ valor: r.id, texto: r.nombre }))}
+			/>
+		{/if}
 
 		<Campo
 			id="fecha"
@@ -76,7 +102,7 @@
 
 		<fieldset class="formatos" aria-describedby={errores.formato ? 'formato-error' : undefined}>
 			<legend>Format</legend>
-			{#each FORMATOS as formato (formato)}
+			{#each formatos as formato (formato)}
 				<label class="opcion">
 					<input type="radio" name="formato" value={formato} checked={formatoInicial === formato} />
 					{textoFormato(formato)}
@@ -128,7 +154,7 @@
 		<Boton type="submit" cargando={enviando}>
 			{enviando ? 'Enregistrement…' : 'Enregistrer le match'}
 		</Boton>
-		<a class="volver" href={resolve('/matchs')}>Annuler</a>
+		<a class="volver" href={volverA}>Annuler</a>
 	</form>
 {/if}
 
@@ -238,6 +264,27 @@
 
 	.error {
 		color: var(--color-error);
+	}
+
+	.rival-fijo {
+		display: grid;
+		gap: var(--espacio-1);
+	}
+
+	.etiqueta-campo {
+		font-weight: 600;
+		font-size: 0.95rem;
+	}
+
+	.nombre-rival {
+		display: flex;
+		align-items: center;
+		min-height: var(--altura-toque);
+		padding: 0 var(--espacio-4);
+		border-radius: var(--radio-campo);
+		background: var(--color-superficie);
+		box-shadow: inset 0 0 0 1px var(--color-borde);
+		overflow-wrap: anywhere;
 	}
 
 	.volver {

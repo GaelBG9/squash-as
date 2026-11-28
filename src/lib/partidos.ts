@@ -63,7 +63,14 @@ export async function leerRivales(
 	}
 }
 
-export type DatosRegistro = { rival: string; fecha: string; formato: Formato; juegos: Juego[] };
+export type DatosRegistro = {
+	rival: string;
+	fecha: string;
+	formato: Formato;
+	juegos: Juego[];
+	/** Solo para un partido de torneo (R19); sin él, es un entrenamiento. */
+	torneo?: number;
+};
 
 /**
  * Registra un partido con la función `registrar_partido` de la base de datos,
@@ -71,7 +78,7 @@ export type DatosRegistro = { rival: string; fecha: string; formato: Formato; ju
  */
 export async function registrarPartido(
 	cliente: ClienteSupabase,
-	{ rival, fecha, formato, juegos }: DatosRegistro
+	{ rival, fecha, formato, juegos, torneo }: DatosRegistro
 ): Promise<Resultado<number>> {
 	try {
 		// Sin tipos generados de la base de datos, `rpc` no sabe qué devuelve: se lo decimos.
@@ -79,7 +86,9 @@ export async function registrarPartido(
 			p_rival: rival,
 			p_fecha: fecha,
 			p_formato: formato,
-			p_juegos: juegos.map(({ a, b }) => ({ a, b }))
+			p_juegos: juegos.map(({ a, b }) => ({ a, b })),
+			// Sin torneo no se envía: la base de datos usa `null` (entrenamiento).
+			...(torneo === undefined ? {} : { p_torneo: torneo })
 		})) as { data: number | null; error: { message: string } | null };
 		if (error) return { ok: false, error: `Impossible d’enregistrer le match : ${error.message}` };
 		return { ok: true, datos: Number(data) };

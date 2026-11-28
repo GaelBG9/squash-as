@@ -27,13 +27,14 @@ const PLAZAS_GENERADAS = [{ ronda: 1, posicion: 1, jugador: BEA }];
 
 /**
  * Cliente falso: la consulta a `torneos` devuelve `filaTorneo`, la de `cuadros`
- * devuelve `plazas` y la de `jugadores`, Ana y Bea. Apunta las tablas consultadas
+ * devuelve `plazas`, la de `partidos` devuelve `partidos` y la de `jugadores`, Ana y Bea. Apunta las tablas consultadas
  * y las llamadas a `rpc`.
  */
 function clienteFalso(
 	filaTorneo: unknown = FILA_TORNEO,
 	respuestaRpc: { data: unknown; error: { message: string } | null } = { data: null, error: null },
-	plazas: unknown[] = []
+	plazas: unknown[] = [],
+	partidos: unknown[] = []
 ) {
 	const tablas: string[] = [];
 	const llamadasRpc: unknown[][] = [];
@@ -46,7 +47,14 @@ function clienteFalso(
 		return consulta;
 	};
 	consulta.overrideTypes = () => {
-		const datos = tabla === 'torneos' ? filaTorneo : tabla === 'cuadros' ? plazas : [ANA, BEA];
+		const datos =
+			tabla === 'torneos'
+				? filaTorneo
+				: tabla === 'cuadros'
+					? plazas
+					: tabla === 'partidos'
+						? partidos
+						: [ANA, BEA];
 		return Promise.resolve({ data: datos, error: null });
 	};
 	consulta.rpc = (...argumentos) => {
@@ -81,9 +89,27 @@ describe('load de un torneo', () => {
 			torneo: { ok: true, datos: { nombre: 'Open de printemps', inscritos: [BEA] } },
 			esAdmin: false,
 			inscribibles: null,
-			recienCreado: false
+			recienCreado: false,
+			recienRegistrado: false
 		});
-		expect(falso.tablas.sort()).toEqual(['cuadros', 'torneos']);
+		expect(falso.tablas.sort()).toEqual(['cuadros', 'partidos', 'torneos']);
+	});
+
+	it('da los partidos del torneo y quién soy, para el estado de cada cruce (2.3)', async () => {
+		const partido = {
+			id: 9,
+			jugador_a: 'yo',
+			jugador_b: 'b',
+			ganador: 'yo',
+			estado: 'pendiente',
+			juegos: []
+		};
+		const falso = clienteFalso(FILA_TORNEO, undefined, PLAZAS_GENERADAS, [partido]);
+		expect(await cargar('1', perfil('jugador'), falso, '?enregistre')).toMatchObject({
+			partidos: { ok: true, datos: [partido] },
+			yo: 'yo',
+			recienRegistrado: true
+		});
 	});
 
 	it('el admin ve a quién puede inscribir: todos menos los ya inscritos', async () => {

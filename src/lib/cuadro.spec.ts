@@ -1,11 +1,18 @@
 import { describe, it, expect } from 'vitest';
 import {
 	ORDEN_CABEZAS,
+	RONDA_CAMPEON,
+	buscarCruce,
 	cabezaDePosicion,
 	cambiarCuadro,
+	campeonDe,
 	construirCuadro,
 	generarPlazas,
+	juegosDesde,
 	leerCuadro,
+	leerPartidosDeTorneo,
+	partidoDeCruce,
+	type PartidoTorneo,
 	type Plaza
 } from './cuadro.ts';
 import type { ClienteSupabase } from './supabase.ts';
@@ -144,6 +151,95 @@ describe('generarPlazas y construirCuadro (R16, R18, historia 5)', () => {
 	});
 });
 
+describe('partidos de torneo (R19, tarea 2.3)', () => {
+	// Los mismos casos que supabase/tests/0012_partidos_torneo.sql: con 4 inscritos,
+	// las semifinales son 1 contra 4 (cruce 1) y 3 contra 2 (cruce 2).
+	const plazas4 = generarPlazas(jugadores(4));
+
+	it('buscarCruce: con 4 inscritos, el 1 y el 4 se enfrentan en semifinales', () => {
+		expect(buscarCruce(plazas4, 'j1', 'j4')).toEqual({ ronda: 3, cruce: 1 });
+		// El orden de los dos jugadores no importa.
+		expect(buscarCruce(plazas4, 'j4', 'j1')).toEqual({ ronda: 3, cruce: 1 });
+		expect(buscarCruce(plazas4, 'j3', 'j2')).toEqual({ ronda: 3, cruce: 2 });
+	});
+
+	it('buscarCruce: dos jugadores que no se enfrentan (todavía) dan null', () => {
+		// El 1 y el 2 solo se cruzarían en la final, que aún no tiene plazas.
+		expect(buscarCruce(plazas4, 'j1', 'j2')).toBeNull();
+		expect(buscarCruce(plazas4, 'j1', 'j1')).toBeNull();
+		expect(buscarCruce(plazas4, 'j1', 'nadie')).toBeNull();
+	});
+
+	it('buscarCruce: con 16 inscritos, el 8 y el 9 juegan el cruce 2 de primera ronda', () => {
+		expect(buscarCruce(generarPlazas(jugadores(16)), 'j8', 'j9')).toEqual({ ronda: 1, cruce: 2 });
+	});
+
+	it('buscarCruce: el ganador de cada semifinal se cruza con el otro en la final', () => {
+		const conFinal: Plaza[] = [
+			...plazas4,
+			{ ronda: 4, posicion: 1, jugador: jugadores(4)[0] },
+			{ ronda: 4, posicion: 2, jugador: jugadores(4)[2] }
+		];
+		expect(buscarCruce(conFinal, 'j3', 'j1')).toEqual({ ronda: 4, cruce: 1 });
+	});
+
+	it('buscarCruce: la plaza del campeón no es un cruce', () => {
+		const conCampeon: Plaza[] = [
+			{ ronda: RONDA_CAMPEON, posicion: 1, jugador: jugadores(1)[0] },
+			{ ronda: RONDA_CAMPEON, posicion: 2, jugador: jugadores(2)[1] }
+		];
+		expect(buscarCruce(conCampeon, 'j1', 'j2')).toBeNull();
+	});
+
+	it('campeonDe: quien ocupa la ronda 5, o nadie si la final no se ha jugado', () => {
+		expect(campeonDe(plazas4)).toBeNull();
+		const campeon = jugadores(3)[2];
+		expect(campeonDe([...plazas4, { ronda: RONDA_CAMPEON, posicion: 1, jugador: campeon }])).toBe(
+			campeon
+		);
+	});
+
+	const partido = (cambios: Partial<PartidoTorneo>): PartidoTorneo => ({
+		id: 1,
+		jugador_a: 'j1',
+		jugador_b: 'j4',
+		ganador: 'j1',
+		estado: 'pendiente',
+		juegos: [],
+		...cambios
+	});
+
+	it('partidoDeCruce: el pendiente o el confirmado, en cualquier orden de jugadores', () => {
+		const pendiente = partido({ id: 2 });
+		expect(partidoDeCruce([pendiente], 'j4', 'j1')).toBe(pendiente);
+		const confirmado = partido({ id: 3, estado: 'confirmado' });
+		expect(partidoDeCruce([pendiente, confirmado], 'j1', 'j4')).toBe(confirmado);
+	});
+
+	it('partidoDeCruce: un rechazado no cuenta, ni un partido de otros jugadores', () => {
+		const rechazado = partido({ estado: 'rechazado' });
+		const otros = partido({ jugador_a: 'j2', jugador_b: 'j3' });
+		expect(partidoDeCruce([rechazado, otros], 'j1', 'j4')).toBeNull();
+	});
+
+	it('juegosDesde: los puntos contados desde cada jugador, en orden', () => {
+		const jugado = partido({
+			juegos: [
+				{ numero: 2, puntos_a: 8, puntos_b: 11 },
+				{ numero: 1, puntos_a: 11, puntos_b: 5 }
+			]
+		});
+		expect(juegosDesde(jugado, 'j1')).toEqual([
+			{ a: 11, b: 5 },
+			{ a: 8, b: 11 }
+		]);
+		expect(juegosDesde(jugado, 'j4')).toEqual([
+			{ a: 5, b: 11 },
+			{ a: 11, b: 8 }
+		]);
+	});
+});
+
 describe('acceso a Supabase', () => {
 	function clienteFalso(respuesta: { data: unknown; error: { message: string } | null }) {
 		const llamadas: unknown[][] = [];
@@ -176,6 +272,21 @@ describe('acceso a Supabase', () => {
 		expect(await leerCuadro(cliente, 7)).toEqual({
 			ok: false,
 			error: 'Impossible de lire le tableau : boom'
+		});
+	});
+
+	it('leerPartidosDeTorneo lee los partidos del torneo con sus juegos', async () => {
+		const { cliente, llamadas } = clienteFalso({ data: [], error: null });
+		expect(await leerPartidosDeTorneo(cliente, 7)).toEqual({ ok: true, datos: [] });
+		expect(llamadas).toContainEqual(['from', 'partidos']);
+		expect(llamadas).toContainEqual(['eq', 'torneo', 7]);
+	});
+
+	it('leerPartidosDeTorneo devuelve el error en francés', async () => {
+		const { cliente } = clienteFalso({ data: null, error: { message: 'boom' } });
+		expect(await leerPartidosDeTorneo(cliente, 7)).toEqual({
+			ok: false,
+			error: 'Impossible de lire les matchs du tournoi : boom'
 		});
 	});
 
