@@ -97,9 +97,9 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - R13. Solo uno de los dos jugadores puede registrar un partido; el otro es quien lo confirma o rechaza.
 - R14. Los ratings Glicko-2 de los dos jugadores se actualizan en cuanto se confirma el partido (cada partido cuenta como un periodo del algoritmo); una victoria cuenta 1, una derrota 0 y un empate 0,5. La incertidumbre (RD) de un jugador crece por cada semana sin jugar antes de su siguiente partido, sin pasar nunca de 350.
 - R15. La clasificación Glicko-2 es común a los dos grupos; se puede filtrar por grupo 1 o 2 (los puestos se cuentan entonces dentro del grupo, y los jugadores sin grupo solo salen en la lista completa). Cada jugador aparece con su incertidumbre (RD) de hoy, es decir, con las semanas sin jugar ya sumadas (R14).
-- R16. Los cabezas de serie de un torneo se ordenan por rating Glicko-2 el día en que se genera el cuadro.
-- R17. Un torneo admite como máximo 16 inscritos y cada jugador se inscribe una sola vez. Solo el administrador inscribe jugadores y genera el cuadro.
-- R18. Con menos de 16 inscritos, las plazas vacías son exentos: los mejores cabezas de serie pasan directamente a la segunda ronda.
+- R16. Los cabezas de serie de un torneo se ordenan por rating Glicko-2 el día en que se genera el cuadro. Si dos inscritos tienen el mismo rating, va antes el de menor incertidumbre (RD) y, si siguen empatados, el primero por orden alfabético.
+- R17. Un torneo admite como máximo 16 inscritos y cada jugador se inscribe una sola vez. Solo el administrador inscribe jugadores y genera el cuadro. Con el cuadro generado, ya no se puede inscribir ni desinscribir a nadie.
+- R18. Hacen falta al menos 2 inscritos para generar el cuadro. Con menos de 16, las plazas vacías son exentos: los mejores cabezas de serie pasan directamente a la segunda ronda. Con muy pocos inscritos (menos de 8), un jugador puede pasar solo varias rondas seguidas (con 2 inscritos, se enfrentan directamente en la final).
 - R19. Un partido de torneo se juega al mejor de 3 o de 5 (nunca libre), solo entre dos jugadores que se enfrentan en el cuadro, y cuenta para Glicko-2. Cuando se confirma, el ganador pasa a su plaza de la ronda siguiente.
 - R20. Los perdedores de primera ronda del cuadro principal juegan un cuadro de consolación (un exento no entra). Sus partidos cuentan para Glicko-2 pero no dan puntos en la clasificación general.
 - R21. Puntos por torneo en la clasificación general: campeón 100, finalista 70, semifinal 50, cuartos 30, primera ronda 10. La clasificación suma los torneos de una temporada. Estos puntos no tienen relación con el rating Glicko-2.
@@ -107,6 +107,7 @@ RD (rating deviation) = la incertidumbre de Glicko-2 sobre el nivel del jugador.
 - R23. Cualquier jugador conectado puede arbitrar un partido: elige los dos jugadores y el formato, y apunta cada punto (puede deshacer el último). Un juego se gana al llegar a 11 puntos con 2 de ventaja (con 10-10 se sigue hasta 12-10, 13-11...). Al terminar, el partido se registra como "pendiente" con todos sus juegos, registrado por el árbitro. Si el árbitro es uno de los jugadores, confirma el otro (R2); si es un tercero, cualquiera de los dos jugadores puede confirmar o rechazar. Nadie más ve el marcador en directo.
 - R24. El administrador puede anular un partido confirmado: pasa a "anulado", deja de contar en clasificaciones y estadísticas, y los ratings Glicko-2 se recalculan como si no se hubiera jugado.
 - R25. Una temporada va del 1 de septiembre al 31 de agosto, como el curso escolar. La temporada de un torneo se calcula a partir de su fecha (un torneo del 15 de marzo de 2027 es de la temporada 2026-2027); nadie la escribe a mano.
+- R26. El administrador puede borrar el cuadro de un torneo mientras no haya ningún partido de ese torneo registrado (los rechazados no cuentan); las inscripciones se reabren y el cuadro se puede volver a generar.
 
 ## 8. Criterios de aceptación
 
