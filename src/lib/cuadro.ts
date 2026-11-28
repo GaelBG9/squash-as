@@ -1,3 +1,5 @@
+import type { Juego } from './marcador.ts';
+import type { EstadoPartido } from './partidos.ts';
 import { errorDeRed, type Resultado } from './resultado.ts';
 import type { ClienteSupabase } from './supabase.ts';
 import type { Inscrito } from './torneos.ts';
@@ -11,6 +13,12 @@ export const ORDEN_CABEZAS = [1, 16, 8, 9, 5, 12, 4, 13, 3, 14, 6, 11, 7, 10, 2,
 
 /** Rondas del cuadro principal: 16 plazas, 8, 4 (semifinales) y 2 (final). */
 export const RONDAS = 4;
+
+/**
+ * Ronda con una sola plaza, la del campeón: el ganador de la final pasa ahí, con
+ * la misma regla que en el resto del cuadro (supabase/sql/0012_partidos_torneo.sql).
+ */
+export const RONDA_CAMPEON = RONDAS + 1;
 
 /** Mínimo de inscritos para generar el cuadro (R18). */
 export const MIN_INSCRITOS = 2;
@@ -125,6 +133,98 @@ export function generarPlazas<J>(ordenados: readonly J[]): Plaza<J>[] {
 		}
 	}
 	return plazas;
+}
+
+/** El campeón del torneo (la plaza de la ronda 5), o `null` si la final no se ha jugado. */
+export function campeonDe<J>(plazas: readonly Plaza<J>[]): J | null {
+	return plazas.find((p) => p.ronda === RONDA_CAMPEON)?.jugador ?? null;
+}
+
+/** Dónde se enfrentan dos jugadores: ronda y número de cruce (posiciones 2c-1 y 2c). */
+export type UbicacionCruce = { ronda: number; cruce: number };
+
+/**
+ * Copia de `cruce_en_cuadro` (supabase/sql/0012_partidos_torneo.sql): el cruce en que
+ * se enfrentan `uno` y `otro`, o `null` si no se enfrentan. En eliminación directa
+ * dos jugadores se cruzan como mucho una vez.
+ */
+export function buscarCruce(
+	plazas: readonly Plaza<{ id: string }>[],
+	uno: string,
+	otro: string
+): UbicacionCruce | null {
+	for (const a of plazas) {
+		if (a.ronda > RONDAS || a.jugador?.id !== uno) continue;
+		const cruce = Math.ceil(a.posicion / 2);
+		const rival = plazas.find(
+			(b) =>
+				b.ronda === a.ronda &&
+				b.posicion !== a.posicion &&
+				Math.ceil(b.posicion / 2) === cruce &&
+				b.jugador?.id === otro
+		);
+		if (rival) return { ronda: a.ronda, cruce };
+	}
+	return null;
+}
+
+/** Un partido de torneo, tal como lo lee la página del cuadro. */
+export type PartidoTorneo = {
+	id: number;
+	jugador_a: string;
+	jugador_b: string;
+	ganador: string | null;
+	estado: EstadoPartido;
+	juegos: { numero: number; puntos_a: number; puntos_b: number }[];
+};
+
+/**
+ * El partido que cuenta para el cruce entre `uno` y `otro`: el confirmado o el
+ * pendiente. Los rechazados no cuentan (el cruce se puede volver a registrar).
+ */
+export function partidoDeCruce<P extends Omit<PartidoTorneo, 'juegos'>>(
+	partidos: readonly P[],
+	uno: string,
+	otro: string
+): P | null {
+	const delCruce = partidos.filter(
+		(p) =>
+			p.estado !== 'rechazado' &&
+			((p.jugador_a === uno && p.jugador_b === otro) ||
+				(p.jugador_a === otro && p.jugador_b === uno))
+	);
+	return delCruce.find((p) => p.estado === 'confirmado') ?? delCruce[0] ?? null;
+}
+
+/** Los juegos de un partido contados desde un jugador: `a` son sus puntos. */
+export function juegosDesde(partido: PartidoTorneo, idJugador: string): Juego[] {
+	const esA = partido.jugador_a === idJugador;
+	return [...partido.juegos]
+		.sort((x, y) => x.numero - y.numero)
+		.map(({ puntos_a, puntos_b }) =>
+			esA ? { a: puntos_a, b: puntos_b } : { a: puntos_b, b: puntos_a }
+		);
+}
+
+/** Partidos de un torneo (de todos sus estados), con sus juegos. */
+export async function leerPartidosDeTorneo(
+	cliente: ClienteSupabase,
+	torneo: number
+): Promise<Resultado<PartidoTorneo[]>> {
+	try {
+		const { data, error } = await cliente
+			.from('partidos')
+			.select('id, jugador_a, jugador_b, ganador, estado, juegos(numero, puntos_a, puntos_b)')
+			.eq('torneo', torneo)
+			.order('id')
+			.overrideTypes<PartidoTorneo[], { merge: false }>();
+		if (error) {
+			return { ok: false, error: `Impossible de lire les matchs du tournoi : ${error.message}` };
+		}
+		return { ok: true, datos: data ?? [] };
+	} catch (e) {
+		return { ok: false, error: errorDeRed(e) };
+	}
 }
 
 type FilaCuadro = { ronda: number; posicion: number; jugador: Inscrito | null };

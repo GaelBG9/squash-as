@@ -80,6 +80,15 @@ describe('registrarPartido', () => {
 		]);
 	});
 
+	it('con un torneo, envía también p_torneo (R19)', async () => {
+		const { cliente, llamadas } = clienteFalso(datos(43));
+		expect(await registrarPartido(cliente, { ...registro, torneo: 7 })).toEqual({
+			ok: true,
+			datos: 43
+		});
+		expect(llamadas[0].argumentos[1]).toMatchObject({ p_rival: ID_RIVAL, p_torneo: 7 });
+	});
+
 	it('devuelve el mensaje de la base de datos si rechaza el partido', async () => {
 		const { cliente } = clienteFalso(() =>
 			Promise.resolve({ data: null, error: { message: 'Le match n’est pas terminé' } })

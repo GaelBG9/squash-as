@@ -3,9 +3,17 @@
 	import { resolve } from '$app/paths';
 	import Boton from '#lib/componentes/Boton.svelte';
 	import Seleccion from '#lib/componentes/Seleccion.svelte';
-	import { MIN_INSCRITOS, construirCuadro, type Lado } from '#lib/cuadro.ts';
+	import {
+		MIN_INSCRITOS,
+		campeonDe,
+		construirCuadro,
+		juegosDesde,
+		partidoDeCruce,
+		type Cruce,
+		type Lado
+	} from '#lib/cuadro.ts';
 	import { duracion } from '#lib/movimiento.ts';
-	import { fechaCorta } from '#lib/partidos.ts';
+	import { fechaCorta, textoMarcador } from '#lib/partidos.ts';
 	import { MAX_INSCRITOS } from '#lib/torneos.ts';
 	import { fly } from 'svelte/transition';
 	import type { SubmitFunction } from './$types';
@@ -27,6 +35,35 @@
 					.filter((r) => r.cruces.length > 0)
 			: []
 	);
+	const campeon = $derived(campeonDe(plazas));
+	const partidos = $derived(data.partidos.ok ? data.partidos.datos : []);
+
+	/**
+	 * Qué enseñar en un cruce entre dos jugadores: su partido (confirmado o pendiente),
+	 * el botón para registrarlo si juego yo, o "À jouer".
+	 */
+	function situacion(cruce: Cruce) {
+		const { arriba, abajo } = cruce;
+		if (arriba.tipo !== 'jugador' || abajo.tipo !== 'jugador') return null;
+		const partido = partidoDeCruce(partidos, arriba.jugador.id, abajo.jugador.id);
+		if (partido?.estado === 'confirmado' && partido.ganador) {
+			const ganador = arriba.jugador.id === partido.ganador ? arriba.jugador : abajo.jugador;
+			return {
+				tipo: 'jugado' as const,
+				ganador: ganador.id,
+				texto: `${ganador.nombre} gagne ${textoMarcador(juegosDesde(partido, ganador.id))}`
+			};
+		}
+		if (partido) return { tipo: 'pendiente' as const };
+		const rival =
+			arriba.jugador.id === data.yo
+				? abajo.jugador.id
+				: abajo.jugador.id === data.yo
+					? arriba.jugador.id
+					: null;
+		return rival ? { tipo: 'registrar' as const, rival } : { tipo: 'por_jugar' as const };
+	}
+
 	const puedeGenerar = $derived((torneo?.inscritos.length ?? 0) >= MIN_INSCRITOS);
 
 	// Qué se está enviando: "inscribir", o el id del jugador que se desinscribe.
@@ -79,6 +116,12 @@
 	{#if data.recienCreado}
 		<p class="confirmacion" role="status" in:fly={{ y: -8, duration: duracion(200) }}>
 			Tournoi créé. Tu peux maintenant inscrire les joueurs.
+		</p>
+	{/if}
+
+	{#if data.recienRegistrado}
+		<p class="confirmacion" role="status" in:fly={{ y: -8, duration: duracion(200) }}>
+			Match enregistré. Ton adversaire doit maintenant le confirmer.
 		</p>
 	{/if}
 
@@ -178,20 +221,42 @@
 				{/if}
 			{/if}
 		{:else}
+			{#if !data.partidos.ok}
+				<p class="aviso" role="alert">{data.partidos.error}</p>
+			{/if}
+			{#if campeon}
+				<p class="campeon">🏆 Vainqueur du tournoi : <strong>{campeon.nombre}</strong></p>
+			{/if}
 			{#each rondas as ronda (ronda.ronda)}
 				<h3>{ronda.nombre}</h3>
 				<ul class="lista">
 					{#each ronda.cruces as cruce, i (i)}
+						{@const s = situacion(cruce)}
 						<li class="tarjeta cruce">
 							{#each [cruce.arriba, cruce.abajo] as lado, j (j)}
-								<p class="lado" class:texto-suave={lado.tipo !== 'jugador'}>
+								<p
+									class="lado"
+									class:texto-suave={lado.tipo !== 'jugador' ||
+										(s?.tipo === 'jugado' && s.ganador !== lado.jugador.id)}
+								>
 									{#if lado.tipo === 'jugador' && lado.cabeza !== null}
 										<span class="cabeza">[{lado.cabeza}]</span>
 									{/if}
 									<span class="nombre-lado">{textoLado(lado)}</span>
 								</p>
 							{/each}
-							{#if cruce.estado === 'partido'}
+							{#if s?.tipo === 'jugado'}
+								<span class="etiqueta-cruce">{s.texto}</span>
+							{:else if s?.tipo === 'pendiente'}
+								<span class="etiqueta-cruce">En attente de confirmation</span>
+							{:else if s?.tipo === 'registrar'}
+								<a
+									class="boton-enlace"
+									href="{resolve('/matchs/nouveau')}?tournoi={torneo.id}&adversaire={s.rival}"
+								>
+									Enregistrer le résultat
+								</a>
+							{:else if cruce.estado === 'partido'}
 								<span class="etiqueta-cruce">À jouer</span>
 							{:else if cruce.estado === 'exento'}
 								<span class="etiqueta-cruce">Qualifié d’office</span>
@@ -307,6 +372,28 @@
 
 	.texto-suave .nombre-lado {
 		font-weight: 400;
+	}
+
+	.campeon {
+		padding: var(--espacio-3) var(--espacio-4);
+		border-radius: var(--radio-campo);
+		border-left: 4px solid var(--color-acento);
+		background: var(--color-superficie);
+	}
+
+	/* Enlace con aspecto de botón principal (ver Boton.svelte). */
+	.boton-enlace {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-height: var(--altura-toque);
+		margin-top: var(--espacio-2);
+		padding: 0 var(--espacio-5);
+		border-radius: var(--radio-boton);
+		background: var(--color-acento);
+		color: var(--color-acento-texto);
+		font-weight: 600;
+		text-decoration: none;
 	}
 
 	.etiqueta-cruce {

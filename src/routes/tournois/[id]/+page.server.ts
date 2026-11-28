@@ -1,5 +1,5 @@
 import { error, fail, redirect } from '@sveltejs/kit';
-import { cambiarCuadro, leerCuadro } from '#lib/cuadro.ts';
+import { cambiarCuadro, leerCuadro, leerPartidosDeTorneo } from '#lib/cuadro.ts';
 import { esAdmin } from '#lib/perfil.ts';
 import {
 	cambiarInscripcion,
@@ -10,8 +10,8 @@ import {
 } from '#lib/torneos.ts';
 import type { Actions, PageServerLoad, RequestEvent } from './$types';
 
-// Un torneo, sus inscritos (tarea 2.1) y su cuadro (tarea 2.2). Todos los conectados
-// lo ven; solo el administrador ve los controles para inscribir, desinscribir,
+// Un torneo, sus inscritos (tarea 2.1), su cuadro (tarea 2.2) y sus partidos (tarea
+// 2.3). Todos los conectados lo ven; solo el administrador ve los controles para inscribir, desinscribir,
 // generar y borrar el cuadro.
 export const load: PageServerLoad = async ({ locals, params, parent, url }) => {
 	const usuario = await locals.obtenerUsuario();
@@ -20,10 +20,11 @@ export const load: PageServerLoad = async ({ locals, params, parent, url }) => {
 	const id = leerId(params.id);
 	if (id === null) error(404, 'Tournoi introuvable');
 
-	const [{ perfil }, torneo, cuadro] = await Promise.all([
+	const [{ perfil }, torneo, cuadro, partidos] = await Promise.all([
 		parent(),
 		leerTorneo(locals.supabase, id),
-		leerCuadro(locals.supabase, id)
+		leerCuadro(locals.supabase, id),
+		leerPartidosDeTorneo(locals.supabase, id)
 	]);
 	if (torneo.ok && torneo.datos === null) error(404, 'Tournoi introuvable');
 
@@ -37,13 +38,18 @@ export const load: PageServerLoad = async ({ locals, params, parent, url }) => {
 	return {
 		torneo,
 		cuadro,
+		partidos,
+		// Para saber en qué cruces juego yo (botón "Enregistrer le résultat").
+		yo: usuario.id,
 		esAdmin: admin,
 		inscribibles:
 			jugadores?.ok && torneo.ok && torneo.datos
 				? { ok: true as const, datos: noInscritos(jugadores.datos, torneo.datos.inscritos) }
 				: jugadores,
 		// `/tournois/7?cree` al volver del formulario de creación.
-		recienCreado: url.searchParams.has('cree')
+		recienCreado: url.searchParams.has('cree'),
+		// `/tournois/7?enregistre` al volver de registrar un partido del cuadro.
+		recienRegistrado: url.searchParams.has('enregistre')
 	};
 };
 
